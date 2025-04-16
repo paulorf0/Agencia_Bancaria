@@ -11,3 +11,5 @@
     * Feito o número 2. Classe para validação na pasta outros/validarCPF.java
     * Relacionado ao número 3, implementado a, b, c, e, f, g, h, i, j, k
     * Número 5, item a, feito.
+- 16/04
+    * implementação do item 4 iniciada, falta testar.
