@@ -1,6 +1,6 @@
 package enums;
 
-public enum CanalTransferencia {
+public enum Canal {
     INTERNETBAKING,
     CAIXA_ELETRONICO,
     CAIXA_FISICO

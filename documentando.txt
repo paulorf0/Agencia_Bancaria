@@ -13,3 +13,17 @@
     * Número 5, item a, feito.
 - 16/04
     * implementação do item 4 iniciada, falta testar.
+- 17/04
+    * Adicionando exceção de: Saldo inválido (Seja por saque, depósito ou transferência).
+    * No enum SaldoCode foi colocado códigos para cada tipo de exceção (Talvez não seja necessário).
+    * Se for lançar um exception com msg personalizada, note que, por exemplo,
+     "valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0" lança a mesma msg, mesmo que
+     o saldo seja <= 0 em vez do valor de saque seja negativo.
+    * A classe Transacao foi criada e as transações vão ser armazenadas em um List (histórico de transações) da conta.
+    * Cada método de deposito, saque, e etc, foi adicionado um argumento a mais do tipo Canal, que diz qual foi o canal
+      utilizado para realizar aquela operação. Esse canal é salvo no histórico de transações como atributo do objeto do tipo
+      Transacao.
+    * Dois novos métodos foram adicionados: deposito_transf(int nro_conta, BigDecimal valor, Canal canal) e
+      deposito_pagamento(int nro_conta, BigDecimal valor, Canal canal). Cada um deles é utilizado para quando é feito 
+      um pagamento ou transferência. Foi criado esses métodos para que se possa adicionar uma transação com o TipoTransacao
+      correto.
