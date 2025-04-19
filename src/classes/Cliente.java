@@ -1,22 +1,25 @@
 package classes;
 
-import java.time.LocalDate;
-
-import enums.EstadoCivil;
-
 public class Cliente {
-    private String nome;
     private String cpf;
-    private LocalDate data_nasc;
-    private Endereco endereco;
-    private EstadoCivil est_civil;
+    private String nome;
+    private Conta conta;
 
-    public Cliente() {
-    }
-
-    public Cliente(String nome, String cpf) {
-        this.nome = nome;
+    public Cliente(String cpf, String nome, Conta conta) {
         this.cpf = cpf;
+        this.nome = nome;
+        this.conta = conta;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public Conta getConta() {
+        return conta;
+    }
 }
