@@ -1,7 +1,5 @@
 package classes;
 
-
-
 public class Cliente {
     private String cpf;
     private String nome;
@@ -23,5 +21,9 @@ public class Cliente {
 
     public Conta getConta() {
         return conta;
+    }
+
+    public void setConta(Conta conta) {
+        this.conta = conta;
     }
 }

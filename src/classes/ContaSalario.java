@@ -1,4 +1,5 @@
 package classes;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -7,7 +8,7 @@ public class ContaSalario extends Conta {
     private BigDecimal limite_saque;
     private BigDecimal limite_transf;
 
-    public ContaSalario(String senha, int nro_conta, BigDecimal saldo, LocalDateTime data_abertura,
+    public ContaSalario(String senha, BigDecimal saldo, LocalDateTime data_abertura,
             BigDecimal limite_saque, BigDecimal limite_transf, UUID nro_agencia) {
         super(senha, saldo, data_abertura, nro_agencia);
         this.limite_saque = limite_saque;
