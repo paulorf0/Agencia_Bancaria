@@ -1,14 +1,17 @@
 package classes;
 
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ContaPoupanca extends Conta {
     private BigDecimal rendimento;
 
-    public ContaPoupanca(String senha, int nro_conta, BigDecimal saldo, LocalDateTime data_abertura) {
-        super(senha, nro_conta, saldo, data_abertura);
+    public ContaPoupanca(String senha, BigDecimal saldo, LocalDateTime data_abertura, UUID nro_agencia) {
+        super(senha, saldo, data_abertura, nro_agencia);
         this.rendimento = BigDecimal.ZERO;
+        this.tipoConta = 1;
     }
 
     public BigDecimal getRendimento() {

@@ -1,23 +1,22 @@
 package classes;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ContaSalario extends Conta {
     private BigDecimal limite_saque;
     private BigDecimal limite_transf;
 
-
     public ContaSalario(String senha, int nro_conta, BigDecimal saldo, LocalDateTime data_abertura,
-                        BigDecimal limite_saque, BigDecimal limite_transf) {
-        super(senha, nro_conta, saldo, data_abertura);
+            BigDecimal limite_saque, BigDecimal limite_transf, UUID nro_agencia) {
+        super(senha, saldo, data_abertura, nro_agencia);
         this.limite_saque = limite_saque;
         this.limite_transf = limite_transf;
+        this.tipoConta = 2;
     }
 
-
-    public ContaSalario(String senha, int nroConta, BigDecimal saldo, LocalDateTime dataAbertura) {
-        super(senha, nroConta, saldo, dataAbertura);
+    public ContaSalario(String senha, int nroConta, BigDecimal saldo, LocalDateTime dataAbertura, UUID nro_agencia) {
+        super(senha, saldo, dataAbertura, nro_agencia);
         this.limite_saque = new BigDecimal("1000");
         this.limite_transf = new BigDecimal("500");
     }

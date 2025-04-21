@@ -1,26 +1,27 @@
 package classes;
 
+// 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ContaCorrente extends Conta {
     private BigDecimal limite_cheque_especial;
     private BigDecimal taxa_administrativa;
 
-
-    public ContaCorrente(String senha, int nro_conta, BigDecimal saldo, LocalDate data_abertura,
-                         BigDecimal limite_cheque_especial, BigDecimal taxa_administrativa) {
-        super(senha, nro_conta, saldo, data_abertura.atStartOfDay());
+    public ContaCorrente(String senha, BigDecimal saldo, LocalDate data_abertura,
+            BigDecimal limite_cheque_especial, BigDecimal taxa_administrativa, UUID nro_agencia) {
+        super(senha, saldo, data_abertura.atStartOfDay(), nro_agencia);
         this.limite_cheque_especial = limite_cheque_especial;
         this.taxa_administrativa = taxa_administrativa;
+        this.tipoConta = 0;
     }
 
-
-    public ContaCorrente(String senha, int nroConta, BigDecimal saldo, LocalDateTime dataAbertura) {
-        super(senha, nroConta, saldo, dataAbertura);
+    public ContaCorrente(String senha, BigDecimal saldo, LocalDateTime dataAbertura, UUID nro_agencia) {
+        super(senha, saldo, dataAbertura, nro_agencia);
         this.limite_cheque_especial = new BigDecimal("500.00"); // valor padrão
-        this.taxa_administrativa = new BigDecimal("10.00");     // valor padrão
+        this.taxa_administrativa = new BigDecimal("10.00"); // valor padrão
     }
 
     public BigDecimal getLimite_cheque_especial() {

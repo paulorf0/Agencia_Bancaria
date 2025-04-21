@@ -37,8 +37,8 @@ public class Main {
         Conta conta = clienteAutenticado.getConta();
         String tipoConta = conta instanceof ContaCorrente ? "Conta Corrente"
                 : conta instanceof ContaPoupanca ? "Conta Poupança"
-                : conta instanceof ContaSalario ? "Conta Salário"
-                : "Tipo de Conta Desconhecido";
+                        : conta instanceof ContaSalario ? "Conta Salário"
+                                : "Tipo de Conta Desconhecido";
 
         System.out.println("\n Login efetuado com sucesso!");
         System.out.println("Bem-vindo(a), " + clienteAutenticado.getNome());
