@@ -61,6 +61,28 @@ public abstract class Conta {
 
     public abstract void consultarSaldo();
 
+    public String consultarInf() {
+        return "Número da Conta: " + nro_conta +
+                "\nSaldo: " + saldo +
+                "\nÚltima Movimentação: " + ult_movimentacao +
+                "\nData de Abertura: " + data_abertura +
+                "\nTipo de Conta: " + (tipoConta == 0 ? "Corrente" : tipoConta == 1 ? "Poupança" : "Salário") +
+                "\nNúmero da Agência: " + nro_agencia;
+    }
+
+    public String consultarHist() {
+        StringBuilder historico = new StringBuilder();
+
+        for (Transacao transacao : hist) {
+            historico.append("Data: ").append(transacao.getData()).append("\n")
+                    .append("Tipo: ").append(transacao.getTipo()).append("\n")
+                    .append("Canal: ").append(transacao.getCanal()).append("\n")
+                    .append("Valor: ").append(transacao.getValor()).append("\n\n");
+        }
+
+        return historico.toString();
+    }
+
     public String getSenha() {
         return senha;
     }

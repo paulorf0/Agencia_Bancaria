@@ -1,26 +1,19 @@
 package menus;
 
 import classes.Cliente;
-import classes.ClienteLoader;
 import classes.Conta;
 import classes.ContaCorrente;
 import classes.ContaPoupanca;
 import classes.ContaSalario;
 import classes.MetodosDB;
 import enums.Canal;
-import enums.TipoTransacao;
 import outros.Utils;
 import outros.ValidarCPF;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Scanner;
 
 public class MenuLogin {
-    private static final String CAMINHO_ARQUIVO = "cliente";
+    private static final String CAMINHO_ARQUIVO = "DB";
     private static Canal canal;
 
     public static void escolherCanal(Scanner scanner) {
@@ -52,8 +45,7 @@ public class MenuLogin {
             }
 
         }
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        Utils.limparConsole();
     }
 
     public static void exibirMenu() {
@@ -62,21 +54,30 @@ public class MenuLogin {
         MetodosDB.dbNome = CAMINHO_ARQUIVO;
 
         while (!autenticado) {
+            Utils.limparConsole();
+
             System.out.println("\n=== Banco Digital ===");
             System.out.println("1. Login");
             System.out.println("2. Cadastrar novo cliente");
-            System.out.println("3. Sair");
+            System.out.println("3. Cadastrar novo funcionario");
+            System.out.println("4. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
             switch (opcao) {
-                case "1" -> autenticado = fazerLogin(scanner);
-                case "2" -> cadastrarCliente(scanner);
-                case "3" -> {
+                case "1":
+                    autenticado = fazerLogin(scanner);
+                    break;
+                case "2":
+                    cadastrarCliente(scanner);
+                    break;
+
+                case "4":
                     System.out.println("Saindo...");
-                    return;
-                }
-                default -> System.out.println("Opção inválida. Tente novamente.");
+                    autenticado = true;
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
             }
         }
     }
@@ -93,22 +94,30 @@ public class MenuLogin {
         }
 
         if (MetodosDB.consultarSenha(cpf).equals(senha)) {
-            Conta conta = MetodosDB.consultar(cpf);
-            int tipoConta = conta.getTipoConta();
 
-            if (tipoConta == 0) {
-                ContaCorrente corrente = (ContaCorrente) conta;
-                MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
-            } else if (tipoConta == 1) {
-                ContaPoupanca poupanca = (ContaPoupanca) conta;
-                MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
-            } else if (tipoConta == 2) {
-                ContaSalario salario = (ContaSalario) conta;
-                MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+            int tipoConta = MetodosDB.consultarTipoConta(cpf);
+
+            if (tipoConta == 3) {
+                MenuFuncionario.Menu(scanner, cpf);
+            } else if (tipoConta == 4) {
+                MenuGerente.Menu(scanner, cpf);
             } else {
-                System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
-                return false;
+                Conta conta = MetodosDB.consultar(cpf);
+                if (tipoConta == 0) {
+                    ContaCorrente corrente = (ContaCorrente) conta;
+                    MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+                } else if (tipoConta == 1) {
+                    ContaPoupanca poupanca = (ContaPoupanca) conta;
+                    MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+                } else if (tipoConta == 2) {
+                    ContaSalario salario = (ContaSalario) conta;
+                    MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+                } else {
+                    System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
+                    return false;
+                }
             }
+
             return true;
         }
 

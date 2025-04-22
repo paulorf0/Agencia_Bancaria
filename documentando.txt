@@ -40,4 +40,40 @@
         } catch (IOException e) {
         }
         para que se possa inicializar o "banco de dados" caso ele não exista.
-    
+- 22/04
+    * Implementado menu de funcionario e gerente
+    * Modelo de salvamento no banco de dados foi separado em dois tipos: modelo para contar e modelo para funcionarios. 
+    * Modelo para contas:
+        cpf ; nome ; senha ; nro_conta ; saldo ; data_abertura; ult_movimentacao ; tipoConta ; agencia ; - ; ... ; - ;.. ; ..*
+
+        Depois de "agencia" vem uma lista de transicao, e os ultimos 2 (ou o ultimo) serão as informações especifica de um tipo de conta.
+    * Modelo para funcionarios:
+        cpf ; nome ; senha ; rg ; data_nasc ; estado_civil ; cidade ; tipoConta ; estado ; bairro ; nro_casa ; nro_cart ;
+         cargo ; nro_agencia ; sexo ; salario ; ano_ingresso ; .. ; ... ;*
+         
+         Se for gerente, pode conter mais informações depois de ano_ingresso, que são:
+
+         data_ing_gerente ; comissao ; .. ; ... ; ..*
+
+         O que vem depois de comissao são os cursos.
+    * TODO - Talvez o método rendimento deve ser alterado para: 
+        1. Retire uma certa quantidade de dinheiro
+        2. Faça-o render a tantos % de juros por mês
+        - E colocar um método a mais para resgatar esse rendimento.
+    * TODO - Fazer um menu de cadastro de funcionario
+    * TODO - Alterar funções da classe MetodoDB para trabalhar corretamente com os novos formatados dos dados.
+    * TODO - Dar um significado util para a classe Agencia. Ela não está sendo usada. Talvez fazer uma opção de "buscar agencia proxima", fazendo um filtro de agencias 
+        do cliente que estão proximas do endereço dele. Como esse filtro seria complicado, talvez apenas exibir todas as agencias, assim existe um significado util para agencias.
+    * TODO - Cadastrar as agencias no arquivo de dados.
+        Modelo:
+        . ; nome ; cidade ; bairro ; estado ; nro_local ; . ; tipoConta ; nro_agencia*
+
+        O "." vai ser utilizado apenas para gastar espaço. tipoConta = 5 para agencias.
+    * Valores dos tipos de conta:
+        TipoConta      Demarca
+            0         Corrente 
+            1         Poupanca
+            2         Salario
+            3         Funcionario
+            4         Gerente
+            5         Agencia

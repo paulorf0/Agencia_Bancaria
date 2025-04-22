@@ -3,6 +3,7 @@ package menus;
 import classes.ContaCorrente;
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.Utils;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
@@ -19,7 +20,8 @@ public class MenuContaCorrente {
             System.out.println("3. Sacar");
             System.out.println("4. Transferir");
             System.out.println("5. Efetuar pagamento");
-            System.out.println("6. Sair");
+            System.out.println("6. Consultar Transações");
+            System.out.println("7. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -78,6 +80,13 @@ public class MenuContaCorrente {
 
                     break;
                 case "6":
+                    Utils.limparConsole();
+                    System.out.println("Transacoes da conta: " + contaCorrente.getNro_conta());
+                    System.out.println("--------------------------------------");
+                    System.out.println("\n" + contaCorrente.consultarHist());
+                    System.out.println("--------------------------------------");
+                    break;
+                case "7":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

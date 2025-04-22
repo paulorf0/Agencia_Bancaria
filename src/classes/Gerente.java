@@ -4,21 +4,53 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
+import enums.Sexo;
+
 public class Gerente extends Funcionario {
     private LocalDate data_ingr_gerente;
-    private int nro_agencia; // Nro da agencia em que trabalha
     private Set<String> cursos; // O melhor é um conjunto?
-    private static BigDecimal comissao;
+    private BigDecimal comissao;
+
+    public Gerente(int nro_cart, String cargo, int nro_agencia, Sexo sexo, BigDecimal salario, LocalDate anoIngresso,
+            LocalDate data_ingr_gerente, Set<String> cursos, BigDecimal comissao) {
+        super(nro_cart, cargo, nro_agencia, sexo, salario, anoIngresso);
+        this.data_ingr_gerente = data_ingr_gerente;
+        this.cursos = cursos;
+        this.comissao = comissao;
+    }
 
     public BigDecimal CalcSal() {
         return super.getSalario().add(comissao);
     }
 
-    public static BigDecimal getComissao() {
+    public String getCursosString() {
+        StringBuilder cString = new StringBuilder();
+
+        for (String c : cursos) {
+            cString.append(c).append(", ");
+        }
+
+        if (cString.length() > 0) {
+            cString.setLength(cString.length() - 2);
+        }
+
+        return cString.toString();
+    }
+
+    public BigDecimal getComissao() {
         return comissao;
     }
 
-    public static void setComissao(BigDecimal comis) {
+    public void setComissao(BigDecimal comis) {
         comissao = comis;
     }
+
+    public LocalDate getData_ingr_gerente() {
+        return data_ingr_gerente;
+    }
+
+    public Set<String> getCursos() {
+        return cursos;
+    }
+
 }

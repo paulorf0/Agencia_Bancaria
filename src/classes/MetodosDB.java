@@ -57,6 +57,10 @@ public class MetodosDB {
         return -1;
     }
 
+    public static Funcionario consultarFuncionario(String CPF) {
+        return null;
+    }
+
     public static String consultarSenha(String CPF) {
         String dados = puxarDados();
 
@@ -92,15 +96,15 @@ public class MetodosDB {
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
                 if (cpfRegistro.equals(CPF)) {
-                   
+
                     String senha = campos[2];
-                   
+
                     UUID nroConta = UUID.fromString(campos[3]);
                     BigDecimal saldo = new BigDecimal(campos[4]);
-                   
+
                     LocalDateTime dataAbertura = LocalDateTime.parse(campos[5]);
                     LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6]);
-                    
+
                     int tipoConta = Integer.parseInt(campos[7]);
                     int nroAgencia = Integer.parseInt(campos[8]);
 

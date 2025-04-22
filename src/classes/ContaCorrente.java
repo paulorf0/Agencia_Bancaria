@@ -10,8 +10,6 @@ import enums.SaldoCode;
 import enums.TipoTransacao;
 import exceptions.SaldoException;
 
-import java.math.BigDecimal;
-
 public class ContaCorrente extends Conta {
     private BigDecimal limite_cheque_especial;
     private BigDecimal taxa_administrativa;

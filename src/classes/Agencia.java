@@ -5,4 +5,16 @@ public class Agencia {
     private String nome;
     private Endereco endereco;
 
+    public int getNro() {
+        return nro;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
 }
