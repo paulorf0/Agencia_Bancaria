@@ -27,3 +27,17 @@
       deposito_pagamento(int nro_conta, BigDecimal valor, Canal canal). Cada um deles é utilizado para quando é feito 
       um pagamento ou transferência. Foi criado esses métodos para que se possa adicionar uma transação com o TipoTransacao
       correto.
+- 21/04
+    * Adicionado o campo nro_agencia na classe conta
+    * Criado uma classe chamada MetodosDB que fornecem métodos para a manipulação do arquivo binário
+        *retorna senha
+        *retorna a conta inteira
+        *salva uma conta nova ou as modificações feitas em uma conta (Não precisa se preocupar, pois no método vou verificar se é para salvar ou modificar)
+    * O arquivo binário está salvo como cpf ; nome ; senha ; nro_conta ; saldo ; data_abertura; ult_movimentacao ; tipoConta ; agencia ; .. ; ..*, os ultimos dois campos depende do tipo de conta
+    e o "*" demarca fim da informação
+    * Nota ToDO: Adicionar na inicialização do programa o código
+     try (FileOutputStream fos = new FileOutputStream(dbNome, true)) {
+        } catch (IOException e) {
+        }
+        para que se possa inicializar o "banco de dados" caso ele não exista.
+    

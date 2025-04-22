@@ -3,7 +3,6 @@ package classes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import enums.EstadoCivil;
 import enums.Sexo;
 
 public class Funcionario extends Pessoa {

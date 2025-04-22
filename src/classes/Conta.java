@@ -2,40 +2,64 @@ package classes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import enums.Canal;
+import exceptions.SaldoException;
 
 public abstract class Conta {
     protected String senha;
     protected UUID nro_conta;
     protected BigDecimal saldo;
+    protected List<Transacao> hist;
     protected LocalDateTime ult_movimentacao;
     protected LocalDateTime data_abertura;
     protected int tipoConta; // 0 se corrente, 1 se poupança, 2 se salario
-    protected UUID nro_agencia;
+    protected int nro_agencia;
 
-    public Conta(String senha, BigDecimal saldo, LocalDateTime data_abertura, UUID nro_agencia) {
+    public Conta(String senha, BigDecimal saldo, int nro_agencia) {
         this.senha = senha;
         this.saldo = saldo;
-        this.data_abertura = data_abertura;
         this.ult_movimentacao = data_abertura;
         this.nro_agencia = nro_agencia;
         this.nro_conta = UUID.randomUUID();
+        this.hist = new ArrayList<>();
+        this.data_abertura = LocalDateTime.now();
+    }
+
+    public Conta(String senha, int nro_agencia) {
+        this.senha = senha;
+        this.nro_agencia = nro_agencia;
+
+        this.data_abertura = LocalDateTime.now();
+        this.ult_movimentacao = data_abertura;
+        this.hist = new ArrayList<>();
+        this.nro_conta = UUID.randomUUID();
+        this.saldo = BigDecimal.ZERO;
     }
 
     public Conta() {
         this.nro_conta = UUID.randomUUID();
         this.data_abertura = LocalDateTime.now();
+        this.hist = new ArrayList<>();
     }
 
-    public abstract void depositar(BigDecimal valor);
+    public abstract void depositar(BigDecimal valor, Canal canal) throws SaldoException;
 
-    public abstract void sacar(BigDecimal valor);
+    // Deposito vindo de outra pessoa.
+    public abstract void deposito_transf(UUID nro_conta, BigDecimal valor, Canal canal);
 
-    public abstract void transferir(Conta conta_destino, BigDecimal valor);
+    public abstract void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal);
 
-    public abstract void efetuarPagamento(BigDecimal valor);
+    public abstract void sacar(BigDecimal valor, Canal canal) throws SaldoException;
 
-    public abstract void consultarSaldo(String saldo);
+    public abstract void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException;
+
+    public abstract void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException;
+
+    public abstract void consultarSaldo();
 
     public String getSenha() {
         return senha;
@@ -85,11 +109,11 @@ public abstract class Conta {
         this.tipoConta = tipoConta;
     }
 
-    public UUID getNro_agencia() {
+    public int getNro_agencia() {
         return nro_agencia;
     }
 
-    public void setNro_agencia(UUID nro_agencia) {
+    public void setNro_agencia(int nro_agencia) {
         this.nro_agencia = nro_agencia;
     }
 

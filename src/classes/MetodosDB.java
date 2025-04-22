@@ -34,10 +34,30 @@ public class MetodosDB {
         return dadosConcatenados.toString();
     }
 
-    public static String consultarSenha(String CPF) {
-        if (consultarExiste(CPF) == 0)
-            return null;
+    public static int consultarTipoConta(String CPF) {
 
+        String dados = puxarDados();
+
+        if (dados == null)
+            return -1;
+
+        String[] blocos = dados.split("\\*");
+
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0) {
+                String cpfRegistro = campos[0].trim();
+                if (cpfRegistro.equals(CPF)) {
+                    int tipoConta = Integer.parseInt(campos[7]);
+                    return tipoConta;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    public static String consultarSenha(String CPF) {
         String dados = puxarDados();
 
         if (dados == null)
@@ -59,9 +79,6 @@ public class MetodosDB {
 
     // Vê o tipo pelo o atributo tipoConta e então converte
     public static Conta consultar(String CPF) {
-        if (consultarExiste(CPF) == 0)
-            return null;
-
         String dados = puxarDados();
 
         if (dados == null)
@@ -75,19 +92,22 @@ public class MetodosDB {
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
                 if (cpfRegistro.equals(CPF)) {
+                   
                     String senha = campos[2];
+                   
                     UUID nroConta = UUID.fromString(campos[3]);
                     BigDecimal saldo = new BigDecimal(campos[4]);
+                   
                     LocalDateTime dataAbertura = LocalDateTime.parse(campos[5]);
                     LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6]);
+                    
                     int tipoConta = Integer.parseInt(campos[7]);
-                    System.out.println("\n" + campos[8]);
-                    UUID nroAgencia = UUID.fromString(campos[8]);
+                    int nroAgencia = Integer.parseInt(campos[8]);
 
                     if (tipoConta == 0) { // Conta Corrente
                         BigDecimal limiteChequeEspecial = new BigDecimal(campos[9]);
                         BigDecimal taxaAdministrativa = new BigDecimal(campos[10]);
-                        ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura.toLocalDate(),
+                        ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura,
                                 limiteChequeEspecial, taxaAdministrativa, nroAgencia);
                         contaCorrente.setNro_conta(nroConta); // Ajusta o UUID
                         contaCorrente.setUlt_movimentacao(ultMovimentacao);
@@ -212,4 +232,80 @@ public class MetodosDB {
             }
         }
     };
+
+    public static void salvar(Conta conta) {
+        String inf = puxarDados();
+        if (inf == null) {
+            System.err.println("Erro interno ao ler o DB");
+            return;
+        }
+
+        String[] linhas = inf.split("\\*");
+        List<String> blocos = new ArrayList<>();
+        for (String bloco : linhas) {
+            if (!bloco.trim().isEmpty()) {
+                blocos.add(bloco);
+            }
+        }
+
+        boolean existe = false;
+        for (int i = 0; i < blocos.size(); i++) {
+            String[] campos = blocos.get(i).split(";");
+            if (campos.length > 3 && campos[3].trim().equals(conta.getNro_conta().toString())) {
+                String cpf = campos[0].trim();
+                String nome = campos[1].trim();
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(cpf).append(';')
+                        .append(nome).append(';')
+                        .append(conta.getSenha()).append(';')
+                        .append(conta.getNro_conta()).append(';')
+                        .append(conta.getSaldo()).append(';')
+                        .append(conta.getData_abertura()).append(';')
+                        .append(conta.getUlt_movimentacao()).append(';')
+                        .append(conta.getTipoConta()).append(';')
+                        .append(conta.getNro_agencia()).append(';');
+
+                switch (conta.getTipoConta()) {
+                    case 0:
+                        ContaCorrente cc = (ContaCorrente) conta;
+                        sb.append(cc.getLimite_cheque_especial()).append(';')
+                                .append(cc.getTaxa_administrativa()).append('*');
+                        break;
+                    case 1:
+                        ContaPoupanca cp = (ContaPoupanca) conta;
+                        sb.append(cp.getRendimento()).append('*');
+                        break;
+                    case 2:
+                        ContaSalario cs = (ContaSalario) conta;
+                        sb.append(cs.getLimite_saque()).append(';')
+                                .append(cs.getLimite_transf()).append('*');
+                        break;
+                    default:
+
+                        System.out.println("\nErro interno.");
+                        return;
+                }
+
+                String novoBlocoSemAsterisco = sb.toString().substring(0, sb.length() - 1);
+                blocos.set(i, novoBlocoSemAsterisco);
+                existe = true;
+                break;
+            }
+        }
+
+        if (!existe) {
+            System.out.println("\nErro interno.");
+            return;
+        }
+
+        try (FileOutputStream file = new FileOutputStream(dbNome);
+                DataOutputStream arq = new DataOutputStream(file)) {
+            for (String b : blocos) {
+                arq.writeUTF(b + "*");
+            }
+        } catch (IOException e) {
+            System.out.println("\nErro interno.");
+        }
+    }
 }

@@ -1,25 +1,33 @@
 package classes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import enums.Canal;
+import enums.SaldoCode;
+import enums.TipoTransacao;
+import exceptions.SaldoException;
 
 public class ContaSalario extends Conta {
     private BigDecimal limite_saque;
     private BigDecimal limite_transf;
 
     public ContaSalario(String senha, BigDecimal saldo, LocalDateTime data_abertura,
-            BigDecimal limite_saque, BigDecimal limite_transf, UUID nro_agencia) {
-        super(senha, saldo, data_abertura, nro_agencia);
+            BigDecimal limite_saque, BigDecimal limite_transf, int nro_agencia) {
+        super(senha, saldo, nro_agencia);
+        this.data_abertura = data_abertura;
         this.limite_saque = limite_saque;
         this.limite_transf = limite_transf;
         this.tipoConta = 2;
     }
 
-    public ContaSalario(String senha, int nroConta, BigDecimal saldo, LocalDateTime dataAbertura, UUID nro_agencia) {
-        super(senha, saldo, dataAbertura, nro_agencia);
+    public ContaSalario(String senha, int nro_agencia) {
+        super(senha, nro_agencia);
         this.limite_saque = new BigDecimal("1000");
         this.limite_transf = new BigDecimal("500");
+        tipoConta = 2;
     }
 
     public BigDecimal getLimite_saque() {
@@ -38,55 +46,99 @@ public class ContaSalario extends Conta {
         this.limite_transf = limite_transf;
     }
 
+    public void deposito_transf(UUID nro_conta, BigDecimal valor, Canal canal) {
+        this.saldo = this.saldo.add(valor);
+        this.ult_movimentacao = LocalDateTime.now();
+
+        Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.TRANSFERENCIA,
+                valor, canal);
+        hist.add(transacao);
+    }
+
     @Override
-    public void depositar(BigDecimal valor) {
+    public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
+        this.saldo = this.saldo.add(valor);
+        this.ult_movimentacao = LocalDate.now().atStartOfDay();
+
+        Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
+                valor, canal);
+        hist.add(transacao);
+    }
+
+    @Override
+    public void depositar(BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0) {
             this.saldo = this.saldo.add(valor);
+            this.ult_movimentacao = LocalDate.now().atStartOfDay();
+
+            Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.DEPOSITO, valor, canal);
+            hist.add(transacao);
             this.ult_movimentacao = LocalDateTime.now();
         } else {
             System.out.println("Valor inválido para depósito.");
+            throw new SaldoException(SaldoCode.DEPOSITO_NEGATIVO.getMsg());
+            // System.out.println("Valor inválido para depósito.");
         }
     }
 
     @Override
-    public void sacar(BigDecimal valor) {
+    public void sacar(BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 &&
                 valor.compareTo(this.limite_saque) <= 0 &&
                 valor.compareTo(this.saldo) <= 0) {
-
             this.saldo = this.saldo.subtract(valor);
             this.ult_movimentacao = LocalDateTime.now();
+
+            Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.SAQUE, valor, canal);
+            hist.add(transacao);
         } else {
-            System.out.println("Valor de saque inválido ou limite/saldo insuficiente.");
+            System.out.println("Valor inválido para saque ou saldo insuficiente.");
+            throw new SaldoException(SaldoCode.SAQUE_NEGATIVO.getMsg());
         }
     }
 
     @Override
-    public void transferir(Conta conta_destino, BigDecimal valor) {
+    public void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 &&
                 valor.compareTo(this.limite_transf) <= 0 &&
                 valor.compareTo(this.saldo) <= 0) {
-
             this.saldo = this.saldo.subtract(valor);
-            conta_destino.depositar(valor);
+            Conta dest = MetodosDB.consultar(cpf_destino);
+
+            dest.deposito_transf(nro_conta, valor, canal);
+            MetodosDB.salvar(dest);
+
             this.ult_movimentacao = LocalDateTime.now();
+
+            Transacao transacao = new Transacao(nro_conta, dest.getNro_conta(), LocalDateTime.now(),
+                    TipoTransacao.TRANSFERENCIA, valor, canal);
+
+            hist.add(transacao);
         } else {
-            System.out.println("Valor de transferência inválido ou limite/saldo insuficiente.");
+            System.out.println("Valor inválido para transferência ou saldo insuficiente.");
         }
     }
 
     @Override
-    public void efetuarPagamento(BigDecimal valor) {
+    public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
-            this.saldo = this.saldo.subtract(valor);
             this.ult_movimentacao = LocalDateTime.now();
+
+            Conta dest = MetodosDB.consultar(cpf_destino);
+            dest.deposito_pagamento(nro_conta, valor, canal);
+            MetodosDB.salvar(dest);
+
+            Transacao transacao = new Transacao(this.nro_conta, dest.getNro_conta(), LocalDateTime.now(),
+                    TipoTransacao.PAGAMENTO, valor, canal);
+
+            hist.add(transacao);
         } else {
             System.out.println("Valor inválido para pagamento ou saldo insuficiente.");
         }
     }
 
     @Override
-    public void consultarSaldo(String saldo) {
+    public void consultarSaldo() {
         System.out.println("Saldo atual: R$ " + this.saldo);
         System.out.println("Limite de saque: R$ " + this.limite_saque);
         System.out.println("Limite de transferência: R$ " + this.limite_transf);
