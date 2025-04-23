@@ -5,6 +5,12 @@ public class Agencia {
     private String nome;
     private Endereco endereco;
 
+    public Agencia(int nro, String nome, Endereco endereco) {
+        this.nro = nro;
+        this.nome = nome;
+        this.endereco = endereco;
+    }
+
     public int getNro() {
         return nro;
     }

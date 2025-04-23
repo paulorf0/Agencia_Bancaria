@@ -97,6 +97,11 @@ public class MetodosDB {
         for (String bloco : blocos) {
             String[] campos = bloco.split(";");
             if (campos.length > 0 && campos[0].trim().equals(CPF)) {
+
+                int tipoConta = Integer.parseInt(campos[7]);
+                if (tipoConta < 3)
+                    return null;
+
                 // Campos comuns
                 String cpf = campos[0].trim();
                 String nome = campos[1];
@@ -109,7 +114,6 @@ public class MetodosDB {
                 String bairro = campos[9];
                 String nroCart = campos[11];
                 String cargo = campos[12];
-                int tipoConta = Integer.parseInt(campos[7]);
                 int nroCasa = Integer.parseInt(campos[10]);
                 int nroAgencia = Integer.parseInt(campos[13]);
                 String sexo = campos[14];
@@ -183,7 +187,10 @@ public class MetodosDB {
             String[] campos = bloco.split(";");
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
+                int tipoConta = Integer.parseInt(campos[7]);
                 if (cpfRegistro.equals(CPF)) {
+                    if (tipoConta > 2)
+                        return null;
 
                     String senha = campos[2];
 
@@ -193,7 +200,6 @@ public class MetodosDB {
                     LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
                     LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
 
-                    int tipoConta = Integer.parseInt(campos[7]);
                     int nroAgencia = Integer.parseInt(campos[8]);
 
                     List<Transacao> transacoes_conta = new ArrayList<>();
@@ -272,10 +278,11 @@ public class MetodosDB {
     // verifica se uma conta já existe no sistema. 1 se existe, 0 se não existe
     public static int consultarExiste(String CPF) {
         String inf = puxarDados();
-        if (inf.equals(".")) {
-            System.out.println("\nOcorreu um erro interno.");
+        if (inf == null || inf.equals(".")) {
+            System.err.println("\nOcorreu um erro interno.");
             return 0;
         }
+
         String[] blocos = inf.split("\\*");
 
         for (String bloco : blocos) {
@@ -293,8 +300,8 @@ public class MetodosDB {
 
     public static void salvar(Cliente cliente) {
         String inf = puxarDados();
-        if (inf == null) {
-            System.err.println("Erro interno ao ler o DB");
+        if (inf == null || inf.equals(".")) {
+            System.err.println("\nOcorreu um erro interno.");
             return;
         }
 
@@ -551,5 +558,95 @@ public class MetodosDB {
         } catch (IOException e) {
             System.err.println("Erro interno ao escrever o DB");
         }
+    }
+
+    public static void salvar(Agencia agencia) {
+        String inf = puxarDados();
+        if (inf == null) {
+            System.err.println("Erro interno ao ler o DB");
+            return;
+        }
+
+        int tipoConta = 5;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(".").append(';')
+                .append(agencia.getNome()).append(';')
+                .append(agencia.getEndereco().getCidade()).append(";")
+                .append(agencia.getEndereco().getBairro()).append(';')
+                .append(agencia.getEndereco().getEstado()).append(';')
+                .append(agencia.getEndereco().getNro_local()).append(';')
+                .append(".").append(';')
+                .append(tipoConta).append(';')
+                .append(agencia.getNro());
+
+        String[] linha = inf.split("\\*");
+        List<String> blocos = new ArrayList<>();
+        for (String bloco : linha) {
+            if (!bloco.trim().isEmpty()) {
+                blocos.add(bloco);
+            }
+        }
+
+        String blocoNovo = sb.toString();
+        boolean existe = false;
+        for (int i = 0; i < blocos.size(); i++) {
+            String[] campos = blocos.get(i).split(";", 2);
+            if (campos.length > 7 && Integer.parseInt(campos[8]) == agencia.getNro()) {
+                blocos.set(i, blocoNovo.substring(0, blocoNovo.length() - 1));
+                existe = true;
+                break;
+            }
+        }
+
+        if (existe) {
+            try (FileOutputStream file = new FileOutputStream(dbNome);
+                    DataOutputStream arq = new DataOutputStream(file)) {
+                for (String b : blocos) {
+                    arq.writeUTF(b + "*");
+                }
+            } catch (IOException e) {
+                System.err.println("Erro interno.");
+            }
+        } else {
+            try (FileOutputStream file = new FileOutputStream(dbNome, true);
+                    DataOutputStream arq = new DataOutputStream(file)) {
+                arq.writeUTF(blocoNovo + "*");
+            } catch (IOException e) {
+                System.err.println("Erro interno.");
+            }
+        }
+    }
+
+    // Verifica se existe a agencia cadastrada.
+    public static int consultarAgencia(int nro_agencia) {
+        String inf = puxarDados();
+
+        if (inf == null || inf.equals(".")) {
+            System.err.println("\nOcorreu um erro interno.");
+            return 0;
+        }
+
+        String[] blocos = inf.split("\\*");
+        for (String bloco : blocos) {
+            if (bloco.trim().isEmpty())
+                continue;
+
+            String[] campos = bloco.split(";");
+
+            if (campos.length > 8) {
+
+                int tipo = Integer.parseInt(campos[7].trim());
+                if (tipo == 5) {
+
+                    int nro = Integer.parseInt(campos[8].trim());
+                    if (nro == nro_agencia) {
+                        return 1;
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 }

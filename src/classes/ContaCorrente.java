@@ -61,7 +61,7 @@ public class ContaCorrente extends Conta {
     @Override
     public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
         this.saldo = this.saldo.add(valor);
-        this.ult_movimentacao = LocalDate.now().atStartOfDay();
+        this.ult_movimentacao = LocalDateTime.now();
 
         Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
                 valor, canal);
@@ -72,7 +72,6 @@ public class ContaCorrente extends Conta {
     public void depositar(BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0) {
             this.saldo = this.saldo.add(valor);
-            this.ult_movimentacao = LocalDate.now().atStartOfDay();
 
             Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.DEPOSITO, valor, canal);
             hist.add(transacao);
@@ -123,7 +122,18 @@ public class ContaCorrente extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
             this.ult_movimentacao = LocalDateTime.now();
 
+            if (MetodosDB.consultarExiste(cpf_destino) == 0) {
+                outros.Utils.limparConsole();
+                System.out.println("CPF inexistente no sistema.");
+                return;
+            }
+
             Conta dest = MetodosDB.consultarConta(cpf_destino);
+            if (dest == null) {
+                System.out.println("O CPF pertence a um funcionario");
+                return;
+            }
+
             dest.deposito_pagamento(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 

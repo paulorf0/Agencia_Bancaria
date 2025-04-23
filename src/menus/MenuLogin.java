@@ -1,5 +1,6 @@
 package menus;
 
+import classes.Agencia;
 import classes.Cliente;
 import classes.Conta;
 import classes.ContaCorrente;
@@ -69,7 +70,8 @@ public class MenuLogin {
             System.out.println("2. Cadastrar novo cliente");
             System.out.println("3. Cadastrar novo funcionario");
             System.err.println("4. Cadastrar novo gerente");
-            System.out.println("5. Sair");
+            System.err.println("5. Cadastrar nova agencia");
+            System.out.println("6. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -87,6 +89,9 @@ public class MenuLogin {
                     cadastrarGerente(scanner);
                     break;
                 case "5":
+                    cadastrarAgencia(scanner);
+                    break;
+                case "6":
                     System.out.println("Saindo...");
                     autenticado = true;
                     break;
@@ -94,6 +99,26 @@ public class MenuLogin {
                     System.out.println("Opção inválida. Tente novamente.");
             }
         }
+    }
+
+    private static void cadastrarAgencia(Scanner scanner) {
+        Endereco end = capturarEndereco(scanner);
+        System.out.print("Digite o nome da agencia: ");
+        String nome = scanner.nextLine();
+
+        int nro_agc;
+        System.out.print("Digite o número da agência: ");
+        while (true) {
+            try {
+                nro_agc = Integer.parseInt(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Número inválido. Tente novamente.");
+            }
+        }
+
+        Agencia agencia = new Agencia(nro_agc, nome, end);
+        MetodosDB.salvar(agencia);
     }
 
     private static void cadastrarFuncionario(Scanner scanner) {
@@ -227,6 +252,11 @@ public class MenuLogin {
         while (true) {
             try {
                 nro_agencia = Integer.parseInt(scanner.nextLine());
+
+                if (MetodosDB.consultarAgencia(nro_agencia) == 0) {
+                    System.out.println("Essa agencia não está cadastrada.");
+                    return null;
+                }
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("Número inválido. Tente novamente.");
@@ -387,6 +417,12 @@ public class MenuLogin {
         while (true)
             try {
                 nro_agencia = Integer.parseInt(scanner.nextLine());
+
+                if (MetodosDB.consultarAgencia(nro_agencia) == 0) {
+                    System.out.println("Essa agencia não está cadastrada.");
+                    return;
+                }
+
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("\n Numero digitado invalido.");

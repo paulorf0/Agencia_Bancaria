@@ -15,7 +15,7 @@ public class MenuFuncionario {
             String escolha = scanner.nextLine();
 
             Funcionario func = MetodosDB.consultarFuncionario(CPF);
-
+            
             switch (escolha) {
                 case "1":
                     System.out.println("Numero da carteira: " + func.getNro_cart());
