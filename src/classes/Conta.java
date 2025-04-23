@@ -82,6 +82,9 @@ public abstract class Conta {
             if (transacao.getCanal() == Canal.CAIXA_FISICO)
                 canal_string = "Caixa Fisico";
 
+            if (transacao.getDa_conta() != nro_conta)
+                historico.append("De: " + transacao.getDa_conta()).append("\n");
+
             historico.append("Data: ").append(transacao.getData()).append("\n")
                     .append("Tipo: ").append(transacao.getTipo()).append("\n")
                     .append("Canal: ").append(canal_string).append("\n")

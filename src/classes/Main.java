@@ -14,8 +14,10 @@ public class Main {
         MetodosDB.dbNome = "DB";
         // Utils.limparConsole();
         System.out.println(MetodosDB.dados());
-        // MenuLogin.exibirMenu();
+        MenuLogin.exibirMenu();
 
-        // Cliente no Banco: 14762706000 e 33578108081
+        // Cliente no Banco Corrente: 14762706000 e 33578108081
+        // Cliente Salario: 12843140064
+
     }
 }

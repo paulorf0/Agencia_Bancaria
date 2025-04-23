@@ -259,8 +259,8 @@ public class MetodosDB {
                         contaPoupanca.setRendimento(rendimento);
                         return contaPoupanca;
                     } else if (tipoConta == 2) { // Conta Salário
-                        BigDecimal limiteSaque = new BigDecimal(campos[11]);
-                        BigDecimal limiteTransf = new BigDecimal(campos[12]);
+                        BigDecimal limiteSaque = new BigDecimal(campos[10]);
+                        BigDecimal limiteTransf = new BigDecimal(campos[11]);
                         ContaSalario contaSalario = new ContaSalario(senha, saldo, dataAbertura, limiteSaque,
                                 limiteTransf,
                                 nroAgencia, transacoes_conta);

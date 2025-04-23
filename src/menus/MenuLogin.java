@@ -63,7 +63,6 @@ public class MenuLogin {
         MetodosDB.dbNome = CAMINHO_ARQUIVO;
 
         while (!autenticado) {
-            Utils.limparConsole();
 
             System.out.println("\n=== Banco Digital ===");
             System.out.println("1. Login");
