@@ -54,4 +54,12 @@ public class Gerente extends Funcionario {
         return cursos;
     }
 
+    public void setData_ingr_gerente(LocalDate data_ingr_gerente) {
+        this.data_ingr_gerente = data_ingr_gerente;
+    }
+
+    public void setCursos(List<String> cursos) {
+        this.cursos = cursos;
+    }
+
 }

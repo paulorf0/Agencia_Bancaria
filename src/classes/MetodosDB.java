@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.UUID;
 
 import enums.Canal;
+import enums.EstadoCivil;
+import enums.Sexo;
 import enums.TipoTransacao;
 
 public class MetodosDB {
@@ -84,6 +87,81 @@ public class MetodosDB {
     }
 
     public static Funcionario consultarFuncionario(String CPF) {
+        String dados = puxarDados();
+        if (dados == null)
+            return null;
+
+        String[] blocos = dados.split("\\*");
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0 && campos[0].trim().equals(CPF)) {
+                // Campos comuns
+                String cpf = campos[0].trim();
+                String nome = campos[1];
+                String senha = campos[2];
+                String rg = campos[3];
+                LocalDate dataNascimento = LocalDate.parse(campos[4], dateFmt);
+                String estadoCivil = campos[5];
+                String cidade = campos[6];
+                String estado = campos[8];
+                String bairro = campos[9];
+                String nroCart = campos[11];
+                String cargo = campos[12];
+                int tipoConta = Integer.parseInt(campos[7]);
+                int nroCasa = Integer.parseInt(campos[10]);
+                int nroAgencia = Integer.parseInt(campos[13]);
+                String sexo = campos[14];
+                BigDecimal salario = new BigDecimal(campos[15]);
+                LocalDate anoIngresso = LocalDate.parse(campos[16]);
+
+                if (tipoConta == 3) {
+                    Funcionario funcionario = new Funcionario(
+                            Integer.parseInt(nroCart),
+                            cargo,
+                            nroAgencia,
+                            Sexo.valueOf(sexo.toUpperCase()),
+                            salario,
+                            anoIngresso);
+                    funcionario.setNomeCompleto(nome);
+                    funcionario.setCpf(cpf);
+                    funcionario.setRg(rg);
+                    funcionario.setSenha(senha);
+                    funcionario.setDataNascimento(dataNascimento);
+                    funcionario.setEndereco(new Endereco(cidade, estado, bairro, nroCasa));
+                    funcionario.setEstadoCivil(EstadoCivil.valueOf(estadoCivil.toUpperCase()));
+                    return funcionario;
+                } else if (tipoConta == 4) {
+                    LocalDate dataIngressoGerente = LocalDate.parse(campos[17], dateFmt);
+                    BigDecimal comissao = new BigDecimal(campos[18]);
+                    List<String> cursos = new ArrayList<>();
+                    if (campos.length > 19 && !campos[19].isEmpty()) {
+                        String[] cursosArray = campos[19].split(",");
+                        for (String curso : cursosArray) {
+                            cursos.add(curso.trim());
+                        }
+                    }
+                    Gerente gerente = new Gerente(
+                            Integer.parseInt(nroCart),
+                            nroAgencia,
+                            Sexo.valueOf(sexo.toUpperCase()),
+                            salario,
+                            anoIngresso,
+                            dataIngressoGerente,
+                            cursos,
+                            comissao);
+                    gerente.setNomeCompleto(nome);
+                    gerente.setCpf(cpf);
+                    gerente.setRg(rg);
+                    gerente.setSenha(senha);
+                    gerente.setDataNascimento(dataNascimento);
+                    gerente.setEndereco(new Endereco(cidade, estado, bairro, nroCasa));
+                    gerente.setEstadoCivil(EstadoCivil.valueOf(estadoCivil.toUpperCase()));
+                    return gerente;
+                }
+            }
+        }
         return null;
     }
 

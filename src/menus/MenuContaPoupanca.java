@@ -84,9 +84,11 @@ public class MenuContaPoupanca {
                     break;
                 case "6":
                     contaPoupanca.calcularRendimento();
+                    contaPoupanca.consultarSaldo();
                     break;
                 case "7":
                     contaPoupanca.aplicarRendimento();
+                    contaPoupanca.consultarSaldo();
                     break;
                 case "8":
                     Utils.limparConsole();

@@ -5,11 +5,19 @@ import classes.Conta;
 import classes.ContaCorrente;
 import classes.ContaPoupanca;
 import classes.ContaSalario;
+import classes.Endereco;
+import classes.Funcionario;
+import classes.Gerente;
 import classes.MetodosDB;
 import enums.Canal;
+import enums.EstadoCivil;
+import enums.Sexo;
 import outros.Utils;
 import outros.ValidarCPF;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuLogin {
@@ -53,8 +61,6 @@ public class MenuLogin {
         boolean autenticado = false;
         MetodosDB.dbNome = CAMINHO_ARQUIVO;
 
-        escolherCanal(scanner);
-
         while (!autenticado) {
             Utils.limparConsole();
 
@@ -62,7 +68,8 @@ public class MenuLogin {
             System.out.println("1. Login");
             System.out.println("2. Cadastrar novo cliente");
             System.out.println("3. Cadastrar novo funcionario");
-            System.out.println("4. Sair");
+            System.err.println("4. Cadastrar novo gerente");
+            System.out.println("5. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -73,8 +80,13 @@ public class MenuLogin {
                 case "2":
                     cadastrarCliente(scanner);
                     break;
-
+                case "3":
+                    cadastrarFuncionario(scanner);
+                    break;
                 case "4":
+                    cadastrarGerente(scanner);
+                    break;
+                case "5":
                     System.out.println("Saindo...");
                     autenticado = true;
                     break;
@@ -82,6 +94,212 @@ public class MenuLogin {
                     System.out.println("Opção inválida. Tente novamente.");
             }
         }
+    }
+
+    private static void cadastrarFuncionario(Scanner scanner) {
+        System.out.print("Cargo: ");
+        String cargo = scanner.nextLine();
+        Funcionario func = capturarInformacoes(scanner);
+        if (func == null)
+            return;
+        func.setCargo(cargo);
+        MetodosDB.salvar(func);
+        System.out.println("Funcionário cadastrado com sucesso!");
+    }
+
+    private static void cadastrarGerente(Scanner scanner) {
+
+        Funcionario func = capturarInformacoes(scanner);
+        if (func == null)
+            return;
+
+        System.out.print("Data de ingresso como gerente (yyyy-MM-dd): ");
+        LocalDate data_ingr_gerente;
+        while (true) {
+            try {
+                data_ingr_gerente = LocalDate.parse(scanner.nextLine());
+                break;
+            } catch (Exception e) {
+                System.out.println("Data inválida. Tente novamente.");
+            }
+        }
+
+        System.out.print("Cursos (separados por vírgula): ");
+        List<String> cursos;
+        while (true) {
+            try {
+                String cursosI = scanner.nextLine();
+                cursos = List.of(cursosI.split(",\\s*"));
+                break;
+            } catch (Exception e) {
+                System.out.println("Entrada inválida. Tente novamente.");
+            }
+        }
+
+        System.out.print("Comissão: ");
+        BigDecimal comissao;
+        while (true) {
+            try {
+                comissao = new BigDecimal(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Valor inválido. Tente novamente.");
+            }
+        }
+
+        Gerente gerente = new Gerente(
+                func.getNro_cart(),
+                func.getNro_agencia(),
+                func.getSexo(),
+                func.getSalario(),
+                func.getAnoIngresso(),
+                data_ingr_gerente,
+                cursos,
+                comissao);
+
+        gerente.setNomeCompleto(func.getNomeCompleto());
+        gerente.setCpf(func.getCpf());
+        gerente.setRg(func.getRg());
+        gerente.setSenha(func.getSenha());
+        gerente.setDataNascimento(func.getDataNascimento());
+        gerente.setEndereco(func.getEndereco());
+        gerente.setEstadoCivil(func.getEstadoCivil());
+
+        MetodosDB.salvar(gerente);
+    }
+
+    private static Funcionario capturarInformacoes(Scanner scanner) {
+        Endereco end = capturarEndereco(scanner);
+
+        System.out.print("Nome completo: ");
+        String nomeCompleto = scanner.nextLine();
+
+        System.out.print("CPF: ");
+
+        String cpf = scanner.nextLine();
+        if (!ValidarCPF.validar(cpf)) {
+            Utils.limparConsole();
+            System.out.println("CPF invalido. Saindo...");
+            return null;
+        }
+
+        System.out.print("RG: ");
+        String rg = scanner.nextLine();
+
+        System.out.print("Senha: ");
+        String senha = scanner.nextLine();
+
+        System.out.print("Data de nascimento (yyyy-MM-dd): ");
+        LocalDate dataNascimento;
+        while (true) {
+            try {
+                dataNascimento = LocalDate.parse(scanner.nextLine());
+                break;
+            } catch (Exception e) {
+                System.out.println("Data inválida. Tente novamente.");
+            }
+        }
+
+        System.out.print("Estado civil (SOLTEIRO, CASADO, DIVORCIADO, VIUVO): ");
+        EstadoCivil estadoCivil;
+        while (true) {
+            try {
+                estadoCivil = EstadoCivil.valueOf(scanner.nextLine().toUpperCase());
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Estado civil inválido. Tente novamente.");
+            }
+        }
+
+        System.out.print("Número da carteira de trabalho: ");
+        int nro_cart;
+        while (true) {
+            try {
+                nro_cart = Integer.parseInt(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Número inválido. Tente novamente.");
+            }
+        }
+
+        System.out.print("Número da agência: ");
+        int nro_agencia;
+        while (true) {
+            try {
+                nro_agencia = Integer.parseInt(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Número inválido. Tente novamente.");
+            }
+        }
+
+        System.out.print("Sexo (MASCULINO, FEMININO): ");
+        Sexo sexo;
+        while (true) {
+            try {
+                sexo = Sexo.valueOf(scanner.nextLine().toUpperCase());
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Sexo inválido. Tente novamente.");
+            }
+        }
+
+        System.out.print("Salário: ");
+        BigDecimal salario;
+        while (true) {
+            try {
+                salario = new BigDecimal(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Valor inválido. Tente novamente.");
+            }
+        }
+
+        System.out.print("Ano de ingresso (yyyy-MM-dd): ");
+        LocalDate anoIngresso;
+        while (true) {
+            try {
+                anoIngresso = LocalDate.parse(scanner.nextLine());
+                break;
+            } catch (Exception e) {
+                System.out.println("Data inválida. Tente novamente.");
+            }
+        }
+
+        Funcionario funcionario = new Funcionario(nro_cart, nro_agencia, sexo, salario, anoIngresso);
+        funcionario.setNomeCompleto(nomeCompleto);
+        funcionario.setCpf(cpf);
+        funcionario.setRg(rg);
+        funcionario.setSenha(senha);
+        funcionario.setDataNascimento(dataNascimento);
+        funcionario.setEndereco(end);
+        funcionario.setEstadoCivil(estadoCivil);
+
+        return funcionario;
+    }
+
+    private static Endereco capturarEndereco(Scanner scanner) {
+        System.out.print("Digite a cidade: ");
+        String cidade = scanner.nextLine();
+
+        System.out.print("Digite o estado: ");
+        String estado = scanner.nextLine();
+
+        System.out.print("Digite o bairro: ");
+        String bairro = scanner.nextLine();
+
+        int nro_local;
+        System.out.print("Digite o número do local: ");
+        while (true) {
+            try {
+                nro_local = Integer.parseInt(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Número inválido. Tente novamente.");
+            }
+        }
+
+        return new Endereco(cidade, estado, bairro, nro_local);
     }
 
     private static boolean fazerLogin(Scanner scanner) {
@@ -104,6 +322,7 @@ public class MenuLogin {
             } else if (tipoConta == 4) {
                 MenuGerente.Menu(scanner, cpf);
             } else {
+                escolherCanal(scanner);
                 Conta conta = MetodosDB.consultarConta(cpf);
                 if (tipoConta == 0) {
                     ContaCorrente corrente = (ContaCorrente) conta;
