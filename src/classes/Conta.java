@@ -74,9 +74,17 @@ public abstract class Conta {
         StringBuilder historico = new StringBuilder();
 
         for (Transacao transacao : hist) {
+            String canal_string = "";
+            if (transacao.getCanal().equals(Canal.CAIXA_ELETRONICO))
+                canal_string = "Caixa eletronico";
+            if (transacao.getCanal().equals(Canal.INTERNETBAKING))
+                canal_string = "Internet Baking";
+            if (transacao.getCanal().equals(Canal.CAIXA_FISICO))
+                canal_string = "Caixa Fisico";
+
             historico.append("Data: ").append(transacao.getData()).append("\n")
                     .append("Tipo: ").append(transacao.getTipo()).append("\n")
-                    .append("Canal: ").append(transacao.getCanal()).append("\n")
+                    .append("Canal: ").append(canal_string).append("\n")
                     .append("Valor: ").append(transacao.getValor()).append("\n\n");
         }
 

@@ -137,15 +137,15 @@ public class MetodosDB {
                     }
 
                     if (tipoConta == 0) { // Conta Corrente
-                        BigDecimal limiteChequeEspecial = new BigDecimal(campos[9]);
-                        BigDecimal taxaAdministrativa = new BigDecimal(campos[10]);
+                        BigDecimal limiteChequeEspecial = new BigDecimal(campos[10]);
+                        BigDecimal taxaAdministrativa = new BigDecimal(campos[11]);
                         ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura,
                                 limiteChequeEspecial, taxaAdministrativa, nroAgencia, transacoes_conta);
                         contaCorrente.setNro_conta(nroConta); // Ajusta o UUID
                         contaCorrente.setUlt_movimentacao(ultMovimentacao);
                         return contaCorrente;
                     } else if (tipoConta == 1) { // Conta Poupança
-                        BigDecimal rendimento = new BigDecimal(campos[9]);
+                        BigDecimal rendimento = new BigDecimal(campos[10]);
                         ContaPoupanca contaPoupanca = new ContaPoupanca(senha, saldo, dataAbertura,
                                 nroAgencia, transacoes_conta);
                         contaPoupanca.setNro_conta(nroConta);
@@ -153,8 +153,8 @@ public class MetodosDB {
                         contaPoupanca.setRendimento(rendimento);
                         return contaPoupanca;
                     } else if (tipoConta == 2) { // Conta Salário
-                        BigDecimal limiteSaque = new BigDecimal(campos[9]);
-                        BigDecimal limiteTransf = new BigDecimal(campos[10]);
+                        BigDecimal limiteSaque = new BigDecimal(campos[11]);
+                        BigDecimal limiteTransf = new BigDecimal(campos[12]);
                         ContaSalario contaSalario = new ContaSalario(senha, saldo, dataAbertura, limiteSaque,
                                 limiteTransf,
                                 nroAgencia, transacoes_conta);
@@ -318,7 +318,8 @@ public class MetodosDB {
                             .append(',').append(t.getTipo()) // TipoTransacao
                             .append(',').append(t.getValor()) // BigDecimal valor
                             .append(',').append(t.getCanal()); // Canal
-
+                    if (j < conta.getHist().size() - 1)
+                        sb.append(":");
                 }
                 sb.append(';');
 

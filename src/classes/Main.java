@@ -10,6 +10,9 @@ public class Main {
         try (FileOutputStream _ = new FileOutputStream("DB", true)) {
         } catch (IOException e) {
         }
+        MetodosDB.dbNome = "DB";
+        System.out.println(MetodosDB.dados());
+
         MenuLogin.exibirMenu();
     }
 }
