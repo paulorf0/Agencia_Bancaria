@@ -44,7 +44,7 @@
     * Implementado menu de funcionario e gerente
     * Modelo de salvamento no banco de dados foi separado em dois tipos: modelo para contar e modelo para funcionarios. 
     * Modelo para contas:
-        cpf ; nome ; senha ; nro_conta ; saldo ; data_abertura; ult_movimentacao ; tipoConta ; agencia ; - ; ... ; - ;.. ; ..*
+        cpf ; nome ; senha ; nro_conta ; saldo ; data_abertura; ult_movimentacao ; tipoConta ; agencia ; .., .., ..: .., .., .. ;.. ; ..*
 
         Depois de "agencia" vem uma lista de transicao, e os ultimos 2 (ou o ultimo) serão as informações especifica de um tipo de conta.
     * Modelo para funcionarios:
@@ -53,7 +53,7 @@
          
          Se for gerente, pode conter mais informações depois de ano_ingresso, que são:
 
-         data_ing_gerente ; comissao ; .. ; ... ; ..*
+         data_ing_gerente ; comissao ; .. , ..., ..*
 
          O que vem depois de comissao são os cursos.
     * TODO - Talvez o método rendimento deve ser alterado para: 
@@ -77,3 +77,5 @@
             3         Funcionario
             4         Gerente
             5         Agencia
+- 23/04
+    * Implementado salvamento de transacoes

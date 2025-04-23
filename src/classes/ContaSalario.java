@@ -3,6 +3,7 @@ package classes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import enums.Canal;
@@ -15,11 +16,12 @@ public class ContaSalario extends Conta {
     private BigDecimal limite_transf;
 
     public ContaSalario(String senha, BigDecimal saldo, LocalDateTime data_abertura,
-            BigDecimal limite_saque, BigDecimal limite_transf, int nro_agencia) {
+            BigDecimal limite_saque, BigDecimal limite_transf, int nro_agencia, List<Transacao> transacoes) {
         super(senha, saldo, nro_agencia);
         this.data_abertura = data_abertura;
         this.limite_saque = limite_saque;
         this.limite_transf = limite_transf;
+        this.hist = transacoes;
         this.tipoConta = 2;
     }
 
@@ -103,7 +105,7 @@ public class ContaSalario extends Conta {
                 valor.compareTo(this.limite_transf) <= 0 &&
                 valor.compareTo(this.saldo) <= 0) {
             this.saldo = this.saldo.subtract(valor);
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
 
             dest.deposito_transf(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
@@ -124,7 +126,7 @@ public class ContaSalario extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
             this.ult_movimentacao = LocalDateTime.now();
 
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
             dest.deposito_pagamento(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 

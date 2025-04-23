@@ -3,6 +3,7 @@ package classes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import enums.Canal;
@@ -15,12 +16,14 @@ public class ContaCorrente extends Conta {
     private BigDecimal taxa_administrativa;
 
     public ContaCorrente(String senha, BigDecimal saldo, LocalDateTime data_abertura,
-            BigDecimal limite_cheque_especial, BigDecimal taxa_administrativa, int nro_agencia) {
+            BigDecimal limite_cheque_especial, BigDecimal taxa_administrativa, int nro_agencia,
+            List<Transacao> transacoes) {
         super(senha, saldo, nro_agencia);
         this.data_abertura = data_abertura;
         this.limite_cheque_especial = limite_cheque_especial;
         this.taxa_administrativa = taxa_administrativa;
         this.tipoConta = 0;
+        this.hist = transacoes;
     }
 
     public ContaCorrente(String senha, int nro_agencia) {
@@ -99,7 +102,7 @@ public class ContaCorrente extends Conta {
     public void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
             this.saldo = this.saldo.subtract(valor);
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
 
             dest.deposito_transf(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
@@ -120,7 +123,7 @@ public class ContaCorrente extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
             this.ult_movimentacao = LocalDateTime.now();
 
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
             dest.deposito_pagamento(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 

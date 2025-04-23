@@ -23,6 +23,15 @@ public class Funcionario extends Pessoa {
         this.anoIngresso = anoIngresso;
     }
 
+    public Funcionario(int nro_cart, int nro_agencia, Sexo sexo, BigDecimal salario,
+            LocalDate anoIngresso) {
+        this.nro_cart = nro_cart;
+        this.nro_agencia = nro_agencia;
+        this.sexo = sexo;
+        this.salario = salario;
+        this.anoIngresso = anoIngresso;
+    }
+
     public BigDecimal CalcSalario() {
         if (anoIngresso.isBefore(LocalDate.now().minusYears(15)))
             return salario.multiply(new BigDecimal("1.1"));

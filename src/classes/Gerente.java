@@ -2,21 +2,22 @@ package classes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 import enums.Sexo;
 
 public class Gerente extends Funcionario {
     private LocalDate data_ingr_gerente;
-    private Set<String> cursos; // O melhor é um conjunto?
+    private List<String> cursos;
     private BigDecimal comissao;
 
-    public Gerente(int nro_cart, String cargo, int nro_agencia, Sexo sexo, BigDecimal salario, LocalDate anoIngresso,
-            LocalDate data_ingr_gerente, Set<String> cursos, BigDecimal comissao) {
-        super(nro_cart, cargo, nro_agencia, sexo, salario, anoIngresso);
+    public Gerente(int nro_cart, int nro_agencia, Sexo sexo, BigDecimal salario, LocalDate anoIngresso,
+            LocalDate data_ingr_gerente, List<String> cursos, BigDecimal comissao) {
+        super(nro_cart, nro_agencia, sexo, salario, anoIngresso);
         this.data_ingr_gerente = data_ingr_gerente;
         this.cursos = cursos;
         this.comissao = comissao;
+        setCargo("Gerente");
     }
 
     public BigDecimal CalcSal() {
@@ -49,7 +50,7 @@ public class Gerente extends Funcionario {
         return data_ingr_gerente;
     }
 
-    public Set<String> getCursos() {
+    public List<String> getCursos() {
         return cursos;
     }
 

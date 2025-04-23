@@ -3,6 +3,7 @@ package classes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import enums.Canal;
@@ -13,10 +14,12 @@ import exceptions.SaldoException;
 public class ContaPoupanca extends Conta {
     private BigDecimal rendimento;
 
-    public ContaPoupanca(String senha, BigDecimal saldo, LocalDateTime data_abertura, int nro_agencia) {
+    public ContaPoupanca(String senha, BigDecimal saldo, LocalDateTime data_abertura, int nro_agencia,
+            List<Transacao> transacoes) {
         super(senha, saldo, nro_agencia);
         this.data_abertura = data_abertura;
         this.rendimento = BigDecimal.ZERO;
+        this.hist = transacoes;
         this.tipoConta = 1;
     }
 
@@ -100,7 +103,7 @@ public class ContaPoupanca extends Conta {
     public void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
             this.saldo = this.saldo.subtract(valor);
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
 
             dest.deposito_transf(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
@@ -121,7 +124,7 @@ public class ContaPoupanca extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
             this.ult_movimentacao = LocalDateTime.now();
 
-            Conta dest = MetodosDB.consultar(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino);
             dest.deposito_pagamento(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 

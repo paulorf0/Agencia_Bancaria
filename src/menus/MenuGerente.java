@@ -42,7 +42,7 @@ public class MenuGerente {
                         if (MetodosDB.consultarTipoConta(cpf_dest) > 2) {
                             System.out.println("Esse CPF pertence a um funcionario.");
                         } else {
-                            Conta conta = MetodosDB.consultar(cpf_dest);
+                            Conta conta = MetodosDB.consultarConta(cpf_dest);
                             System.out.println(conta.consultarInf());
                         }
                     } else {
@@ -60,7 +60,7 @@ public class MenuGerente {
                             System.out.println("Esse CPF pertence a um funcionario.");
                         else {
 
-                            Conta conta = MetodosDB.consultar(cpf_dest);
+                            Conta conta = MetodosDB.consultarConta(cpf_dest);
                             System.out.println(
                                     "Transacoes da conta: " + conta.getNro_conta() + "\nCPF: " + cpf_dest + "\n");
                             System.out.println("--------------------------------------");

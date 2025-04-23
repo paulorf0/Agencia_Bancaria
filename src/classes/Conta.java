@@ -139,4 +139,8 @@ public abstract class Conta {
         this.nro_agencia = nro_agencia;
     }
 
+    public List<Transacao> getHist() {
+        return hist;
+    }
+
 }

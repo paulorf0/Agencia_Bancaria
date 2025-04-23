@@ -102,16 +102,22 @@ public class MenuLogin {
             } else if (tipoConta == 4) {
                 MenuGerente.Menu(scanner, cpf);
             } else {
-                Conta conta = MetodosDB.consultar(cpf);
+                Conta conta = MetodosDB.consultarConta(cpf);
                 if (tipoConta == 0) {
                     ContaCorrente corrente = (ContaCorrente) conta;
                     MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+
+                    MetodosDB.salvar(corrente);
                 } else if (tipoConta == 1) {
                     ContaPoupanca poupanca = (ContaPoupanca) conta;
                     MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+
+                    MetodosDB.salvar(poupanca);
                 } else if (tipoConta == 2) {
                     ContaSalario salario = (ContaSalario) conta;
                     MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+
+                    MetodosDB.salvar(salario);
                 } else {
                     System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
                     return false;
