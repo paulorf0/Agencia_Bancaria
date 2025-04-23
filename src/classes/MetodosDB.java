@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -93,6 +96,11 @@ public class MetodosDB {
 
         String[] blocos = dados.split("\\*");
 
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+                .toFormatter();
+
         for (String bloco : blocos) {
             String[] campos = bloco.split(";");
             if (campos.length > 0) {
@@ -104,25 +112,39 @@ public class MetodosDB {
                     UUID nroConta = UUID.fromString(campos[3]);
                     BigDecimal saldo = new BigDecimal(campos[4]);
 
-                    LocalDateTime dataAbertura = LocalDateTime.parse(campos[5]);
-                    LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6]);
+                    LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
+                    LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
 
                     int tipoConta = Integer.parseInt(campos[7]);
                     int nroAgencia = Integer.parseInt(campos[8]);
 
                     List<Transacao> transacoes_conta = new ArrayList<>();
                     if (!campos[9].isEmpty()) {
-                        String[] transacoes = campos[9].split("\\:");
+
+                        String[] transacoes = campos[9].split("\\|");
+
+                        System.out.println(campos[9]);
+
                         for (String inf : transacoes) {
                             String[] campos_transacao = inf.split(",", -1);
+                            System.out.println(campos_transacao[2]);
 
                             UUID da_conta = UUID.fromString(campos_transacao[0]);
                             UUID para_conta = campos_transacao[1].isEmpty() ? null
                                     : UUID.fromString(campos_transacao[1]);
-                            LocalDateTime data = LocalDateTime.parse(campos_transacao[2]);
+                            LocalDateTime data = LocalDateTime.parse(campos_transacao[2], formatter);
                             TipoTransacao tipo = TipoTransacao.valueOf(campos_transacao[3]);
                             BigDecimal valor = new BigDecimal(campos_transacao[4]);
-                            Canal canal = Canal.valueOf(campos_transacao[5]);
+
+                            int canal_value = Integer.parseInt(campos_transacao[5]);
+                            Canal canal;
+
+                            if (canal_value == 0)
+                                canal = Canal.INTERNETBAKING;
+                            else if (canal_value == 1)
+                                canal = Canal.CAIXA_ELETRONICO;
+                            else
+                                canal = Canal.CAIXA_FISICO;
 
                             Transacao t;
 
@@ -214,15 +236,23 @@ public class MetodosDB {
 
         for (int j = 0; j < conta.getHist().size(); j++) {
             Transacao t = conta.getHist().get(j);
+            int canal = 0;
+            if (t.getCanal() == Canal.INTERNETBAKING)
+                canal = 0;
+            if (t.getCanal() == Canal.CAIXA_ELETRONICO)
+                canal = 1;
+            if (t.getCanal() == Canal.CAIXA_FISICO)
+                canal = 2;
+
             sb.append(t.getDa_conta()).append(',')
                     .append(t.getPara_conta() != null ? t.getPara_conta() : "") // UUID para_conta ou vazio
                     .append(',').append(t.getData()) // LocalDateTime
                     .append(',').append(t.getTipo()) // TipoTransacao
                     .append(',').append(t.getValor()) // BigDecimal valor
-                    .append(',').append(t.getCanal()); // Canal
+                    .append(',').append(canal); // Canal
             if (j < conta.getHist().size() - 1) // Se for a ultima transacao para gravar, não é adicionado o marcador
                                                 // ":"
-                sb.append(":");
+                sb.append("|");
         } // Se não tiver transações, fica ...;;...;*
         sb.append(';');
 
@@ -312,14 +342,23 @@ public class MetodosDB {
 
                 for (int j = 0; j < conta.getHist().size(); j++) {
                     Transacao t = conta.getHist().get(j);
+                    int canal = 0;
+
+                    if (t.getCanal() == Canal.INTERNETBAKING)
+                        canal = 0;
+                    if (t.getCanal() == Canal.CAIXA_ELETRONICO)
+                        canal = 1;
+                    if (t.getCanal() == Canal.CAIXA_FISICO)
+                        canal = 2;
+
                     sb.append(t.getDa_conta()).append(',')
                             .append(t.getPara_conta() != null ? t.getPara_conta() : "") // UUID para_conta ou vazio
-                            .append(',').append(t.getData()) // LocalDateTime
+                            .append(',').append(t.getData().toString()) // LocalDateTime
                             .append(',').append(t.getTipo()) // TipoTransacao
                             .append(',').append(t.getValor()) // BigDecimal valor
-                            .append(',').append(t.getCanal()); // Canal
+                            .append(',').append(canal); // Canal
                     if (j < conta.getHist().size() - 1)
-                        sb.append(":");
+                        sb.append("|");
                 }
                 sb.append(';');
 

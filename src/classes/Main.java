@@ -12,7 +12,6 @@ public class Main {
         }
         MetodosDB.dbNome = "DB";
         System.out.println(MetodosDB.dados());
-
         MenuLogin.exibirMenu();
     }
 }

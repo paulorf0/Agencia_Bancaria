@@ -53,6 +53,8 @@ public class MenuLogin {
         boolean autenticado = false;
         MetodosDB.dbNome = CAMINHO_ARQUIVO;
 
+        escolherCanal(scanner);
+
         while (!autenticado) {
             Utils.limparConsole();
 
