@@ -14,7 +14,7 @@ public class MenuGerente {
 
         while (identificar) {
             System.out.println(
-                    "1. Consultar minhas informacoes\n2. Consultar uma conta\n3. Verificar historico de transacoes\n4. Sair");
+                    "1. Consultar minhas informacoes\n2. Consultar uma conta\n3. Verificar historico de transacoes\n4. Reativar conta de cliente\n5. Sair");
             String escolha = scanner.nextLine();
 
             Funcionario func = MetodosDB.consultarFuncionario(CPF);
@@ -61,6 +61,8 @@ public class MenuGerente {
                         else {
 
                             Conta conta = MetodosDB.consultarConta(cpf_dest);
+                            if (conta.getSituacao() == 0)
+                                System.out.println("A conta está inativa. Antigas transações: \n");
                             System.out.println(
                                     "Transacoes da conta: " + conta.getNro_conta() + "\nCPF: " + cpf_dest + "\n");
                             System.out.println("--------------------------------------");
@@ -72,6 +74,23 @@ public class MenuGerente {
 
                     break;
                 case "4":
+                    System.out.println("Digite o CPF da conta");
+                    cpf_dest = scanner.nextLine();
+
+                    Utils.limparConsole();
+                    if (MetodosDB.consultarExiste(cpf_dest) == 1) {
+                        if (MetodosDB.consultarTipoConta(cpf_dest) > 2)
+                            System.out.println("Esse CPF pertence a um funcionario.");
+                        else {
+
+                            Conta conta = MetodosDB.consultarConta(cpf_dest);
+                            conta.setSituacao(1);
+                            System.out.println("Conta de cliente reativada");
+                            MetodosDB.salvar(conta);
+                        }
+                    }
+                    break;
+                case "5":
                     Utils.limparConsole();
                     System.out.println("Saindo...");
                     identificar = false;

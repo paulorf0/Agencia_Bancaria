@@ -12,12 +12,13 @@ public class Main {
         } catch (IOException e) {
         }
         MetodosDB.dbNome = "DB";
-        // Utils.limparConsole();
-        System.out.println(MetodosDB.dados());
+        Utils.limparConsole();
         MenuLogin.exibirMenu();
+        // System.out.println(MetodosDB.dados());
 
-        // Cliente no Banco Corrente: 14762706000 e 33578108081
+        // Cliente no Banco Corrente: 14762706000 e
+        // Gerente: 33578108081
+        // Cliente Poupanca: 87055560071
         // Cliente Salario: 12843140064
-
     }
 }

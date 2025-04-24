@@ -196,7 +196,6 @@ public class MetodosDB {
 
                     UUID nroConta = UUID.fromString(campos[3]);
                     BigDecimal saldo = new BigDecimal(campos[4]);
-
                     LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
                     LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
 
@@ -207,11 +206,8 @@ public class MetodosDB {
 
                         String[] transacoes = campos[9].split("\\|");
 
-                        System.out.println(campos[9]);
-
                         for (String inf : transacoes) {
                             String[] campos_transacao = inf.split(",", -1);
-                            System.out.println(campos_transacao[2]);
 
                             UUID da_conta = UUID.fromString(campos_transacao[0]);
                             UUID para_conta = campos_transacao[1].isEmpty() ? null
@@ -245,27 +241,35 @@ public class MetodosDB {
                     if (tipoConta == 0) { // Conta Corrente
                         BigDecimal limiteChequeEspecial = new BigDecimal(campos[10]);
                         BigDecimal taxaAdministrativa = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
                         ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura,
                                 limiteChequeEspecial, taxaAdministrativa, nroAgencia, transacoes_conta);
                         contaCorrente.setNro_conta(nroConta); // Ajusta o UUID
                         contaCorrente.setUlt_movimentacao(ultMovimentacao);
+                        contaCorrente.setSituacao(situacao);
                         return contaCorrente;
                     } else if (tipoConta == 1) { // Conta Poupança
                         BigDecimal rendimento = new BigDecimal(campos[10]);
+                        int situacao = Integer.parseInt(campos[11]);
+
                         ContaPoupanca contaPoupanca = new ContaPoupanca(senha, saldo, dataAbertura,
                                 nroAgencia, transacoes_conta);
                         contaPoupanca.setNro_conta(nroConta);
                         contaPoupanca.setUlt_movimentacao(ultMovimentacao);
                         contaPoupanca.setRendimento(rendimento);
+                        contaPoupanca.setSituacao(situacao);
                         return contaPoupanca;
                     } else if (tipoConta == 2) { // Conta Salário
                         BigDecimal limiteSaque = new BigDecimal(campos[10]);
                         BigDecimal limiteTransf = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
+
                         ContaSalario contaSalario = new ContaSalario(senha, saldo, dataAbertura, limiteSaque,
                                 limiteTransf,
                                 nroAgencia, transacoes_conta);
                         contaSalario.setNro_conta(nroConta); // Ajusta o UUID
                         contaSalario.setUlt_movimentacao(ultMovimentacao);
+                        contaSalario.setSituacao(situacao);
                         return contaSalario;
                     }
                 }
@@ -279,7 +283,7 @@ public class MetodosDB {
     public static int consultarExiste(String CPF) {
         String inf = puxarDados();
         if (inf == null || inf.equals(".")) {
-            System.err.println("\nOcorreu um erro interno.");
+            System.out.println("\nOcorreu um erro interno.");
             return 0;
         }
 
@@ -301,7 +305,7 @@ public class MetodosDB {
     public static void salvar(Cliente cliente) {
         String inf = puxarDados();
         if (inf == null || inf.equals(".")) {
-            System.err.println("\nOcorreu um erro interno.");
+            System.out.println("\nOcorreu um erro interno.");
             return;
         }
 
@@ -344,15 +348,16 @@ public class MetodosDB {
         if (tipoConta == 0) {
             ContaCorrente contaCorrente = (ContaCorrente) conta;
             sb.append(contaCorrente.getLimite_cheque_especial().toString()).append(";")
-                    .append(contaCorrente.getTaxa_administrativa().toString()).append("*");
+                    .append(contaCorrente.getTaxa_administrativa().toString()).append(";");
         } else if (tipoConta == 1) {
             ContaPoupanca contaPoupanca = (ContaPoupanca) conta;
-            sb.append(contaPoupanca.getRendimento().toString()).append("*");
+            sb.append(contaPoupanca.getRendimento().toString()).append(";");
         } else {
             ContaSalario contaSalario = (ContaSalario) conta;
             sb.append(contaSalario.getLimite_saque().toString()).append(";")
-                    .append(contaSalario.getLimite_transf().toString()).append("*");
+                    .append(contaSalario.getLimite_transf().toString()).append(";");
         }
+        sb.append(conta.situacao).append("*");
 
         String[] linha = inf.split("\\*");
         List<String> blocos = new ArrayList<>();
@@ -380,14 +385,14 @@ public class MetodosDB {
                     arq.writeUTF(b + "*");
                 }
             } catch (IOException e) {
-                System.err.println("Erro interno.");
+                System.out.println("Erro interno.");
             }
         } else {
             try (FileOutputStream file = new FileOutputStream(dbNome, true);
                     DataOutputStream arq = new DataOutputStream(file)) {
                 arq.writeUTF(blocoNovo);
             } catch (IOException e) {
-                System.err.println("Erro interno.");
+                System.out.println("Erro interno.");
             }
         }
     };
@@ -395,7 +400,7 @@ public class MetodosDB {
     public static void salvar(Conta conta) {
         String inf = puxarDados();
         if (inf == null) {
-            System.err.println("Erro interno ao ler o DB");
+            System.out.println("Erro interno ao ler o DB");
             return;
         }
 
@@ -451,22 +456,23 @@ public class MetodosDB {
                     case 0:
                         ContaCorrente cc = (ContaCorrente) conta;
                         sb.append(cc.getLimite_cheque_especial()).append(';')
-                                .append(cc.getTaxa_administrativa()).append('*');
+                                .append(cc.getTaxa_administrativa()).append(';');
                         break;
                     case 1:
                         ContaPoupanca cp = (ContaPoupanca) conta;
-                        sb.append(cp.getRendimento()).append('*');
+                        sb.append(cp.getRendimento()).append(';');
                         break;
                     case 2:
                         ContaSalario cs = (ContaSalario) conta;
                         sb.append(cs.getLimite_saque()).append(';')
-                                .append(cs.getLimite_transf()).append('*');
+                                .append(cs.getLimite_transf()).append(';');
                         break;
                     default:
 
                         System.out.println("\nErro interno.");
                         return;
                 }
+                sb.append(conta.situacao).append("*");
 
                 String novoBlocoSemAsterisco = sb.toString().substring(0, sb.length() - 1);
                 blocos.set(i, novoBlocoSemAsterisco);
@@ -493,7 +499,7 @@ public class MetodosDB {
     public static void salvar(Funcionario func) {
         String inf = puxarDados();
         if (inf == null) {
-            System.err.println("Erro interno ao ler o DB");
+            System.out.println("Erro interno ao ler o DB");
             return;
         }
 
@@ -556,14 +562,14 @@ public class MetodosDB {
                 dos.writeUTF(blocoNovo);
             }
         } catch (IOException e) {
-            System.err.println("Erro interno ao escrever o DB");
+            System.out.println("Erro interno ao escrever o DB");
         }
     }
 
     public static void salvar(Agencia agencia) {
         String inf = puxarDados();
         if (inf == null) {
-            System.err.println("Erro interno ao ler o DB");
+            System.out.println("Erro interno ao ler o DB");
             return;
         }
 
@@ -606,14 +612,14 @@ public class MetodosDB {
                     arq.writeUTF(b + "*");
                 }
             } catch (IOException e) {
-                System.err.println("Erro interno.");
+                System.out.println("Erro interno.");
             }
         } else {
             try (FileOutputStream file = new FileOutputStream(dbNome, true);
                     DataOutputStream arq = new DataOutputStream(file)) {
                 arq.writeUTF(blocoNovo + "*");
             } catch (IOException e) {
-                System.err.println("Erro interno.");
+                System.out.println("Erro interno.");
             }
         }
     }
@@ -623,7 +629,7 @@ public class MetodosDB {
         String inf = puxarDados();
 
         if (inf == null || inf.equals(".")) {
-            System.err.println("\nOcorreu um erro interno.");
+            System.out.println("\nOcorreu um erro interno.");
             return 0;
         }
 

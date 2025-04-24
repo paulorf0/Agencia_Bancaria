@@ -1,9 +1,12 @@
 package classes;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import enums.Canal;
@@ -24,6 +27,7 @@ public class ContaCorrente extends Conta {
         this.taxa_administrativa = taxa_administrativa;
         this.tipoConta = 0;
         this.hist = transacoes;
+        this.situacao = 1;
     }
 
     public ContaCorrente(String senha, int nro_agencia) {
@@ -31,6 +35,8 @@ public class ContaCorrente extends Conta {
         this.limite_cheque_especial = new BigDecimal("500.00"); // valor padrão
         this.taxa_administrativa = new BigDecimal("10.00"); // valor padrão
         tipoConta = 0;
+        this.situacao = 1;
+
     }
 
     public BigDecimal getLimite_cheque_especial() {
@@ -148,9 +154,8 @@ public class ContaCorrente extends Conta {
 
     @Override
     public void consultarSaldo() {
-
-        System.out.println("Saldo atual: R$ " + this.saldo);
-        System.out.println("Limite cheque especial: R$ " + this.limite_cheque_especial);
-        System.out.println("Taxa administrativa: R$ " + this.taxa_administrativa);
+        System.out.println("Saldo atual: " + formatoMonetarioBrasileiro(this.saldo));
+        System.out.println("Limite cheque especial: " + formatoMonetarioBrasileiro(this.limite_cheque_especial));
+        System.out.println("Taxa administrativa: " + formatoMonetarioBrasileiro(this.taxa_administrativa));
     }
 }

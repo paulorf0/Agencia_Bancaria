@@ -1,9 +1,12 @@
 package classes;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import enums.Canal;
@@ -16,6 +19,7 @@ public abstract class Conta {
     protected List<Transacao> hist;
     protected LocalDateTime ult_movimentacao;
     protected LocalDateTime data_abertura;
+    protected int situacao;
     protected int tipoConta; // 0 se corrente, 1 se poupança, 2 se salario
     protected int nro_agencia;
 
@@ -64,8 +68,8 @@ public abstract class Conta {
     public String consultarInf() {
         return "Número da Conta: " + nro_conta +
                 "\nSaldo: " + saldo +
-                "\nÚltima Movimentação: " + ult_movimentacao +
-                "\nData de Abertura: " + data_abertura +
+                "\nÚltima Movimentação: " + formatoData(ult_movimentacao) +
+                "\nData de Abertura: " + formatoData(data_abertura) +
                 "\nTipo de Conta: " + (tipoConta == 0 ? "Corrente" : tipoConta == 1 ? "Poupança" : "Salário") +
                 "\nNúmero da Agência: " + nro_agencia;
     }
@@ -82,16 +86,29 @@ public abstract class Conta {
             if (transacao.getCanal() == Canal.CAIXA_FISICO)
                 canal_string = "Caixa Fisico";
 
-            if (transacao.getDa_conta() != nro_conta)
+            if (transacao.getDa_conta() != null && !transacao.getDa_conta().equals(nro_conta))
                 historico.append("De: " + transacao.getDa_conta()).append("\n");
+            if (transacao.getPara_conta() != null && !transacao.getPara_conta().equals(nro_conta))
+                historico.append("Para: " + transacao.getPara_conta()).append("\n");
 
-            historico.append("Data: ").append(transacao.getData()).append("\n")
+            historico.append("Data: ").append(formatoData(transacao.getData())).append("\n")
                     .append("Tipo: ").append(transacao.getTipo()).append("\n")
                     .append("Canal: ").append(canal_string).append("\n")
                     .append("Valor: ").append(transacao.getValor()).append("\n\n");
         }
 
         return historico.toString();
+    }
+
+    public String formatoMonetarioBrasileiro(BigDecimal val) {
+        Locale brasil = new Locale("pt", "BR");
+        NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(brasil);
+        return formatoMoeda.format(val);
+    }
+
+    public String formatoData(LocalDateTime data) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss", new Locale("pt", "BR"));
+        return data.format(formatter);
     }
 
     public String getSenha() {
@@ -152,6 +169,18 @@ public abstract class Conta {
 
     public List<Transacao> getHist() {
         return hist;
+    }
+
+    public void setHist(List<Transacao> hist) {
+        this.hist = hist;
+    }
+
+    public int getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(int situacao) {
+        this.situacao = situacao;
     }
 
 }

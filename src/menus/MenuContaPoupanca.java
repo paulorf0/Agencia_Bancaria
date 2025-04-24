@@ -22,8 +22,9 @@ public class MenuContaPoupanca {
             System.out.println("5. Efetuar pagamento");
             System.out.println("6. Calcular rendimento");
             System.out.println("7. Aplicar rendimento");
-            System.out.println("8. Consultar Transações");
-            System.out.println("9. Sair");
+            System.out.println("8. Consultar informacoes gerais");
+            System.out.println("9. Consultar Transações");
+            System.out.println("10. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -91,13 +92,16 @@ public class MenuContaPoupanca {
                     contaPoupanca.consultarSaldo();
                     break;
                 case "8":
+                    System.out.println(contaPoupanca.consultarInf());
+                    break;
+                case "9":
                     Utils.limparConsole();
                     System.out.println("Transacoes da conta: " + contaPoupanca.getNro_conta());
                     System.out.println("--------------------------------------");
                     System.out.println("\n" + contaPoupanca.consultarHist());
                     System.out.println("--------------------------------------");
                     break;
-                case "9":
+                case "10":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

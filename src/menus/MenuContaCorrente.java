@@ -21,7 +21,9 @@ public class MenuContaCorrente {
             System.out.println("4. Transferir");
             System.out.println("5. Efetuar pagamento");
             System.out.println("6. Consultar Transações");
-            System.out.println("7. Sair");
+            System.out.println("7. Consultar informacoes gerais");
+            System.out.println("8. Desativar conta");
+            System.out.println("9. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -87,6 +89,14 @@ public class MenuContaCorrente {
                     System.out.println("--------------------------------------");
                     break;
                 case "7":
+                    System.out.println(contaCorrente.consultarInf());
+                    break;
+                case "8":
+                    contaCorrente.setSituacao(0);
+                    System.out.println("Sua conta foi desativada. Um gerente deve ser consultado para reativar.");
+                    executando = false;
+                    break;
+                case "9":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

@@ -1,9 +1,12 @@
 package classes;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import enums.Canal;
@@ -21,12 +24,16 @@ public class ContaPoupanca extends Conta {
         this.rendimento = BigDecimal.ZERO;
         this.hist = transacoes;
         this.tipoConta = 1;
+        this.situacao = 1;
+
     }
 
     public ContaPoupanca(String senha, int nro_agencia) {
         super(senha, nro_agencia);
         this.rendimento = BigDecimal.ZERO;
         this.tipoConta = 1;
+        this.situacao = 1;
+
     }
 
     public BigDecimal getRendimento() {
@@ -62,7 +69,7 @@ public class ContaPoupanca extends Conta {
     @Override
     public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
         this.saldo = this.saldo.add(valor);
-        this.ult_movimentacao = LocalDate.now().atStartOfDay();
+        this.ult_movimentacao = LocalDateTime.now();
 
         Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
                 valor, canal);
@@ -73,7 +80,7 @@ public class ContaPoupanca extends Conta {
     public void depositar(BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0) {
             this.saldo = this.saldo.add(valor);
-            this.ult_movimentacao = LocalDate.now().atStartOfDay();
+            this.ult_movimentacao = LocalDateTime.now();
 
             Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.DEPOSITO, valor, canal);
             hist.add(transacao);
@@ -139,7 +146,7 @@ public class ContaPoupanca extends Conta {
 
     @Override
     public void consultarSaldo() {
-        System.out.println("Saldo atual: R$ " + this.saldo);
-        System.out.println("Rendimento acumulado: R$ " + this.rendimento);
+        System.out.println("Saldo atual: " + formatoMonetarioBrasileiro(this.saldo));
+        System.out.println("Rendimento acumulado: " + formatoMonetarioBrasileiro(this.rendimento));
     }
 }

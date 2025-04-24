@@ -20,8 +20,9 @@ public class MenuContaSalario {
             System.out.println("3. Sacar");
             System.out.println("4. Transferir");
             System.out.println("5. Efetuar pagamento");
-            System.out.println("6. Consultar Transações");
-            System.out.println("7. Sair");
+            System.out.println("6. Consultar informacoes gerais");
+            System.out.println("7. Consultar Transações");
+            System.out.println("8. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
@@ -80,13 +81,16 @@ public class MenuContaSalario {
 
                     break;
                 case "6":
+                    System.out.println(contaSalario.consultarInf());
+                    break;
+                case "7":
                     Utils.limparConsole();
                     System.out.println("Transacoes da conta: " + contaSalario.getNro_conta());
                     System.out.println("--------------------------------------");
                     System.out.println("\n" + contaSalario.consultarHist());
                     System.out.println("--------------------------------------");
                     break;
-                case "7":
+                case "8":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

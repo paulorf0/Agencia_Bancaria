@@ -1,9 +1,12 @@
 package classes;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import enums.Canal;
@@ -23,6 +26,8 @@ public class ContaSalario extends Conta {
         this.limite_transf = limite_transf;
         this.hist = transacoes;
         this.tipoConta = 2;
+        this.situacao = 1;
+
     }
 
     public ContaSalario(String senha, int nro_agencia) {
@@ -30,6 +35,8 @@ public class ContaSalario extends Conta {
         this.limite_saque = new BigDecimal("1000");
         this.limite_transf = new BigDecimal("500");
         tipoConta = 2;
+        this.situacao = 1;
+
     }
 
     public BigDecimal getLimite_saque() {
@@ -60,7 +67,7 @@ public class ContaSalario extends Conta {
     @Override
     public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
         this.saldo = this.saldo.add(valor);
-        this.ult_movimentacao = LocalDate.now().atStartOfDay();
+        this.ult_movimentacao = LocalDateTime.now();
 
         Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
                 valor, canal);
@@ -71,8 +78,7 @@ public class ContaSalario extends Conta {
     public void depositar(BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0) {
             this.saldo = this.saldo.add(valor);
-            this.ult_movimentacao = LocalDate.now().atStartOfDay();
-
+            this.ult_movimentacao = LocalDateTime.now();
             Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.DEPOSITO, valor, canal);
             hist.add(transacao);
             this.ult_movimentacao = LocalDateTime.now();
@@ -141,8 +147,9 @@ public class ContaSalario extends Conta {
 
     @Override
     public void consultarSaldo() {
-        System.out.println("Saldo atual: R$ " + this.saldo);
-        System.out.println("Limite de saque: R$ " + this.limite_saque);
-        System.out.println("Limite de transferência: R$ " + this.limite_transf);
+
+        System.out.println("Saldo atual: " + formatoMonetarioBrasileiro(this.saldo));
+        System.out.println("Limite de saque: " + formatoMonetarioBrasileiro(this.limite_saque));
+        System.out.println("Limite de transferência: " + formatoMonetarioBrasileiro(this.limite_transf));
     }
 }

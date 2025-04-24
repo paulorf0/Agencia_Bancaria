@@ -59,10 +59,10 @@ public class MenuLogin {
 
     public static void exibirMenu() {
         Scanner scanner = new Scanner(System.in);
-        boolean autenticado = false;
+        boolean sair = false;
         MetodosDB.dbNome = CAMINHO_ARQUIVO;
 
-        while (!autenticado) {
+        while (!sair) {
 
             System.out.println("\n=== Banco Digital ===");
             System.out.println("1. Login");
@@ -76,7 +76,8 @@ public class MenuLogin {
 
             switch (opcao) {
                 case "1":
-                    autenticado = fazerLogin(scanner);
+                    fazerLogin(scanner);
+
                     break;
                 case "2":
                     cadastrarCliente(scanner);
@@ -92,7 +93,7 @@ public class MenuLogin {
                     break;
                 case "6":
                     System.out.println("Saindo...");
-                    autenticado = true;
+                    sair = true;
                     break;
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
@@ -331,7 +332,7 @@ public class MenuLogin {
         return new Endereco(cidade, estado, bairro, nro_local);
     }
 
-    private static boolean fazerLogin(Scanner scanner) {
+    private static void fazerLogin(Scanner scanner) {
         System.out.print("CPF: ");
         String cpf = scanner.nextLine();
         System.out.print("Senha: ");
@@ -339,7 +340,7 @@ public class MenuLogin {
 
         if (MetodosDB.consultarExiste(cpf) == 0) {
             System.out.println("CPF ou senha incorreto. Tente novamente.");
-            return false;
+            return;
         }
 
         if (MetodosDB.consultarSenha(cpf).equals(senha)) {
@@ -351,8 +352,15 @@ public class MenuLogin {
             } else if (tipoConta == 4) {
                 MenuGerente.Menu(scanner, cpf);
             } else {
-                escolherCanal(scanner);
                 Conta conta = MetodosDB.consultarConta(cpf);
+
+                if (conta.getSituacao() == 0) {
+                    System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
+                    return;
+                }
+
+                escolherCanal(scanner);
+
                 if (tipoConta == 0) {
                     ContaCorrente corrente = (ContaCorrente) conta;
                     MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
@@ -370,14 +378,14 @@ public class MenuLogin {
                     MetodosDB.salvar(salario);
                 } else {
                     System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
-                    return false;
+                    return;
                 }
             }
 
-            return true;
+            return;
         }
 
-        return false;
+        return;
     }
 
     private static void cadastrarCliente(Scanner scanner) {
