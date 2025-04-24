@@ -1,4 +1,4 @@
-package classes;
+package outros;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,6 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import classes.Agencia;
+import classes.Cliente;
+import classes.Conta;
+import classes.ContaCorrente;
+import classes.ContaPoupanca;
+import classes.ContaSalario;
+import classes.Endereco;
+import classes.Funcionario;
+import classes.Gerente;
+import classes.Transacao;
 import enums.Canal;
 import enums.EstadoCivil;
 import enums.Sexo;
@@ -357,7 +367,7 @@ public class MetodosDB {
             sb.append(contaSalario.getLimite_saque().toString()).append(";")
                     .append(contaSalario.getLimite_transf().toString()).append(";");
         }
-        sb.append(conta.situacao).append("*");
+        sb.append(conta.getSituacao()).append("*");
 
         String[] linha = inf.split("\\*");
         List<String> blocos = new ArrayList<>();
@@ -472,7 +482,7 @@ public class MetodosDB {
                         System.out.println("\nErro interno.");
                         return;
                 }
-                sb.append(conta.situacao).append("*");
+                sb.append(conta.getSituacao()).append("*");
 
                 String novoBlocoSemAsterisco = sb.toString().substring(0, sb.length() - 1);
                 blocos.set(i, novoBlocoSemAsterisco);
@@ -506,17 +516,17 @@ public class MetodosDB {
         int tipoFunc = func.getCargo() == "Gerente" ? 4 : 3;
 
         StringBuilder sb = new StringBuilder();
-        sb.append(func.cpf).append(';') // cpf
-                .append(func.nomeCompleto).append(';') // nome
-                .append(func.senha).append(';') // senha
-                .append(func.rg).append(';') // rg
-                .append(func.dataNascimento).append(';') // data_nasc
-                .append(func.estadoCivil).append(';') // estado_civil
-                .append(func.endereco.getCidade()).append(';') // cidade
+        sb.append(func.getCpf()).append(';') // cpf
+                .append(func.getNomeCompleto()).append(';') // nome
+                .append(func.getSenha()).append(';') // senha
+                .append(func.getRg()).append(';') // rg
+                .append(func.getDataNascimento()).append(';') // data_nasc
+                .append(func.getEstadoCivil()).append(';') // estado_civil
+                .append(func.getEndereco().getCidade()).append(';') // cidade
                 .append(tipoFunc).append(';') // tipoConta (3 ou 4)
-                .append(func.endereco.getEstado()).append(';') // estado
-                .append(func.endereco.getBairro()).append(';') // bairro
-                .append(func.endereco.getNro_local()).append(';')// nro_casa
+                .append(func.getEndereco().getEstado()).append(';') // estado
+                .append(func.getEndereco().getBairro()).append(';') // bairro
+                .append(func.getEndereco().getNro_local()).append(';')// nro_casa
                 .append(func.getNro_cart()).append(';') // nro_cart
                 .append(func.getCargo()).append(';') // cargo
                 .append(func.getNro_agencia()).append(';') // nro_agencia ← adicionado aqui
@@ -545,7 +555,7 @@ public class MetodosDB {
         boolean existe = false;
         for (int i = 0; i < blocos.size(); i++) {
             String[] campos = blocos.get(i).split(";", 2);
-            if (campos[0].trim().equals(func.cpf)) {
+            if (campos[0].trim().equals(func.getCpf())) {
                 blocos.set(i, blocoNovo.substring(0, blocoNovo.length() - 1));
                 existe = true;
                 break;

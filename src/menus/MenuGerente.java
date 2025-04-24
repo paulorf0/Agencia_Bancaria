@@ -5,7 +5,7 @@ import java.util.Scanner;
 import classes.Conta;
 import classes.Funcionario;
 import classes.Gerente;
-import classes.MetodosDB;
+import outros.MetodosDB;
 import outros.Utils;
 
 public class MenuGerente {

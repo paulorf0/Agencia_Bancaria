@@ -1,18 +1,15 @@
 package classes;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import enums.Canal;
 import enums.SaldoCode;
 import enums.TipoTransacao;
 import exceptions.SaldoException;
+import outros.MetodosDB;
 
 public class ContaPoupanca extends Conta {
     private BigDecimal rendimento;

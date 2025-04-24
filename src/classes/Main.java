@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import menus.MenuLogin;
+import outros.MetodosDB;
 import outros.Utils;
 
 public class Main {

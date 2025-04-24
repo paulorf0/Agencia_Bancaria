@@ -9,10 +9,10 @@ import classes.ContaSalario;
 import classes.Endereco;
 import classes.Funcionario;
 import classes.Gerente;
-import classes.MetodosDB;
 import enums.Canal;
 import enums.EstadoCivil;
 import enums.Sexo;
+import outros.MetodosDB;
 import outros.Utils;
 import outros.ValidarCPF;
 

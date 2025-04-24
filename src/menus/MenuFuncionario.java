@@ -3,7 +3,7 @@ package menus;
 import java.util.Scanner;
 
 import classes.Funcionario;
-import classes.MetodosDB;
+import outros.MetodosDB;
 import outros.Utils;
 
 public class MenuFuncionario {
