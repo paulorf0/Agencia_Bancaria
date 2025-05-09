@@ -289,8 +289,11 @@ public class MetodosDB {
         return null;
     };
 
-    // verifica se uma conta já existe no sistema. 1 se existe, 0 se não existe
+    // verifica se uma conta já existe no sistema. Retorna a quantidade de contas
+    // com o CPF cadastrado.
+    // Pode retornar 0, 1 ou 2. Um usuário pode cadastrar até duas contas.
     public static int consultarExiste(String CPF) {
+        int qtd = 0;
         String inf = puxarDados();
         if (inf == null || inf.equals(".")) {
             System.out.println("\nOcorreu um erro interno.");
@@ -304,12 +307,12 @@ public class MetodosDB {
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
                 if (cpfRegistro.equals(CPF)) {
-                    return 1;
+                    qtd++;
                 }
             }
         }
 
-        return 0;
+        return qtd;
     };
 
     public static void salvar(Cliente cliente) {
