@@ -76,9 +76,9 @@ public class MetodosDB {
         return -1;
     }
 
-    public static String consultarSenha(String CPF) {
+    public static List<String> consultarSenha(String CPF) {
         String dados = puxarDados();
-
+        List<String> senhas = new ArrayList<>();
         if (dados == null)
             return null;
 
@@ -89,11 +89,31 @@ public class MetodosDB {
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
                 if (cpfRegistro.equals(CPF))
-                    return campos[2];
+                    senhas.add(campos[2]);
             }
         }
 
-        return null;
+        return senhas;
+    }
+
+    public static List<String> consultarNroConta(String CPF) {
+        String dados = puxarDados();
+        List<String> nros = new ArrayList<>();
+        if (dados == null)
+            return null;
+
+        String[] blocos = dados.split("\\*");
+
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0) {
+                String cpfRegistro = campos[0].trim();
+                if (cpfRegistro.equals(CPF))
+                    nros.add(campos[3]);
+            }
+        }
+
+        return nros;
     }
 
     public static Funcionario consultarFuncionario(String CPF) {
@@ -179,7 +199,7 @@ public class MetodosDB {
         return null;
     }
 
-    // Vê o tipo pelo o atributo tipoConta e então converte
+    // Alterar para encontrar por número de conta.
     public static Conta consultarConta(String CPF) {
         String dados = puxarDados();
 
@@ -203,8 +223,228 @@ public class MetodosDB {
                         return null;
 
                     String senha = campos[2];
+                    UUID nroConta = UUID.fromString(campos[3]);
+                    BigDecimal saldo = new BigDecimal(campos[4]);
+                    LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
+                    LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
+
+                    int nroAgencia = Integer.parseInt(campos[8]);
+
+                    List<Transacao> transacoes_conta = new ArrayList<>();
+                    if (!campos[9].isEmpty()) {
+
+                        String[] transacoes = campos[9].split("\\|");
+
+                        for (String inf : transacoes) {
+                            String[] campos_transacao = inf.split(",", -1);
+
+                            UUID da_conta = UUID.fromString(campos_transacao[0]);
+                            UUID para_conta = campos_transacao[1].isEmpty() ? null
+                                    : UUID.fromString(campos_transacao[1]);
+                            LocalDateTime data = LocalDateTime.parse(campos_transacao[2], formatter);
+                            TipoTransacao tipo = TipoTransacao.valueOf(campos_transacao[3]);
+                            BigDecimal valor = new BigDecimal(campos_transacao[4]);
+
+                            int canal_value = Integer.parseInt(campos_transacao[5]);
+                            Canal canal;
+
+                            if (canal_value == 0)
+                                canal = Canal.INTERNETBAKING;
+                            else if (canal_value == 1)
+                                canal = Canal.CAIXA_ELETRONICO;
+                            else
+                                canal = Canal.CAIXA_FISICO;
+
+                            Transacao t;
+
+                            if (para_conta == null) {
+                                t = new Transacao(da_conta, data, tipo, valor, canal);
+                            } else {
+                                t = new Transacao(da_conta, para_conta, data, tipo, valor, canal);
+                            }
+
+                            transacoes_conta.add(t);
+                        }
+                    }
+
+                    if (tipoConta == 0) { // Conta Corrente
+                        BigDecimal limiteChequeEspecial = new BigDecimal(campos[10]);
+                        BigDecimal taxaAdministrativa = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
+                        ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura,
+                                limiteChequeEspecial, taxaAdministrativa, nroAgencia, transacoes_conta);
+                        contaCorrente.setNro_conta(nroConta); // Ajusta o UUID
+                        contaCorrente.setUlt_movimentacao(ultMovimentacao);
+                        contaCorrente.setSituacao(situacao);
+                        return contaCorrente;
+                    } else if (tipoConta == 1) { // Conta Poupança
+                        BigDecimal rendimento = new BigDecimal(campos[10]);
+                        int situacao = Integer.parseInt(campos[11]);
+
+                        ContaPoupanca contaPoupanca = new ContaPoupanca(senha, saldo, dataAbertura,
+                                nroAgencia, transacoes_conta);
+                        contaPoupanca.setNro_conta(nroConta);
+                        contaPoupanca.setUlt_movimentacao(ultMovimentacao);
+                        contaPoupanca.setRendimento(rendimento);
+                        contaPoupanca.setSituacao(situacao);
+                        return contaPoupanca;
+                    } else if (tipoConta == 2) { // Conta Salário
+                        BigDecimal limiteSaque = new BigDecimal(campos[10]);
+                        BigDecimal limiteTransf = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
+
+                        ContaSalario contaSalario = new ContaSalario(senha, saldo, dataAbertura, limiteSaque,
+                                limiteTransf,
+                                nroAgencia, transacoes_conta);
+                        contaSalario.setNro_conta(nroConta); // Ajusta o UUID
+                        contaSalario.setUlt_movimentacao(ultMovimentacao);
+                        contaSalario.setSituacao(situacao);
+                        return contaSalario;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+
+    public static Conta consultarConta(String CPF, String senha) {
+        String dados = puxarDados();
+
+        if (dados == null)
+            return null;
+
+        String[] blocos = dados.split("\\*");
+
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+                .toFormatter();
+
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0) {
+                String cpfRegistro = campos[0].trim();
+                String pass = campos[2].trim();
+                int tipoConta = Integer.parseInt(campos[7]);
+                if (cpfRegistro.equals(CPF) && pass.equals(senha)) {
+                    if (tipoConta > 2)
+                        return null;
 
                     UUID nroConta = UUID.fromString(campos[3]);
+                    BigDecimal saldo = new BigDecimal(campos[4]);
+                    LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
+                    LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
+
+                    int nroAgencia = Integer.parseInt(campos[8]);
+
+                    List<Transacao> transacoes_conta = new ArrayList<>();
+                    if (!campos[9].isEmpty()) {
+
+                        String[] transacoes = campos[9].split("\\|");
+
+                        for (String inf : transacoes) {
+                            String[] campos_transacao = inf.split(",", -1);
+
+                            UUID da_conta = UUID.fromString(campos_transacao[0]);
+                            UUID para_conta = campos_transacao[1].isEmpty() ? null
+                                    : UUID.fromString(campos_transacao[1]);
+                            LocalDateTime data = LocalDateTime.parse(campos_transacao[2], formatter);
+                            TipoTransacao tipo = TipoTransacao.valueOf(campos_transacao[3]);
+                            BigDecimal valor = new BigDecimal(campos_transacao[4]);
+
+                            int canal_value = Integer.parseInt(campos_transacao[5]);
+                            Canal canal;
+
+                            if (canal_value == 0)
+                                canal = Canal.INTERNETBAKING;
+                            else if (canal_value == 1)
+                                canal = Canal.CAIXA_ELETRONICO;
+                            else
+                                canal = Canal.CAIXA_FISICO;
+
+                            Transacao t;
+
+                            if (para_conta == null) {
+                                t = new Transacao(da_conta, data, tipo, valor, canal);
+                            } else {
+                                t = new Transacao(da_conta, para_conta, data, tipo, valor, canal);
+                            }
+
+                            transacoes_conta.add(t);
+                        }
+                    }
+
+                    if (tipoConta == 0) { // Conta Corrente
+                        BigDecimal limiteChequeEspecial = new BigDecimal(campos[10]);
+                        BigDecimal taxaAdministrativa = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
+                        ContaCorrente contaCorrente = new ContaCorrente(senha, saldo, dataAbertura,
+                                limiteChequeEspecial, taxaAdministrativa, nroAgencia, transacoes_conta);
+                        contaCorrente.setNro_conta(nroConta); // Ajusta o UUID
+                        contaCorrente.setUlt_movimentacao(ultMovimentacao);
+                        contaCorrente.setSituacao(situacao);
+                        return contaCorrente;
+                    } else if (tipoConta == 1) { // Conta Poupança
+                        BigDecimal rendimento = new BigDecimal(campos[10]);
+                        int situacao = Integer.parseInt(campos[11]);
+
+                        ContaPoupanca contaPoupanca = new ContaPoupanca(senha, saldo, dataAbertura,
+                                nroAgencia, transacoes_conta);
+                        contaPoupanca.setNro_conta(nroConta);
+                        contaPoupanca.setUlt_movimentacao(ultMovimentacao);
+                        contaPoupanca.setRendimento(rendimento);
+                        contaPoupanca.setSituacao(situacao);
+                        return contaPoupanca;
+                    } else if (tipoConta == 2) { // Conta Salário
+                        BigDecimal limiteSaque = new BigDecimal(campos[10]);
+                        BigDecimal limiteTransf = new BigDecimal(campos[11]);
+                        int situacao = Integer.parseInt(campos[12]);
+
+                        ContaSalario contaSalario = new ContaSalario(senha, saldo, dataAbertura, limiteSaque,
+                                limiteTransf,
+                                nroAgencia, transacoes_conta);
+                        contaSalario.setNro_conta(nroConta); // Ajusta o UUID
+                        contaSalario.setUlt_movimentacao(ultMovimentacao);
+                        contaSalario.setSituacao(situacao);
+                        return contaSalario;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+
+    public static Conta consultarConta(String CPF, UUID nroConta) {
+        String dados = puxarDados();
+
+        if (dados == null)
+            return null;
+
+        String[] blocos = dados.split("\\*");
+
+        DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+                .toFormatter();
+
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0) {
+                UUID nro;
+                try {
+                    nro = UUID.fromString(campos[3].trim());
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+
+                int tipoConta = Integer.parseInt(campos[7]);
+                if (nro.equals(nroConta)) {
+                    if (tipoConta > 2)
+                        return null;
+
+                    String senha = campos[2];
                     BigDecimal saldo = new BigDecimal(campos[4]);
                     LocalDateTime dataAbertura = LocalDateTime.parse(campos[5], formatter);
                     LocalDateTime ultMovimentacao = LocalDateTime.parse(campos[6], formatter);
@@ -383,8 +623,8 @@ public class MetodosDB {
         String blocoNovo = sb.toString();
         boolean existe = false;
         for (int i = 0; i < blocos.size(); i++) {
-            String[] campos = blocos.get(i).split(";", 2);
-            if (campos[0].trim().equals(cliente.getCpf())) {
+            String[] campos = blocos.get(i).split(";");
+            if (campos[3].trim().equals(cliente.getConta().getNro_conta().toString())) {
                 blocos.set(i, blocoNovo.substring(0, blocoNovo.length() - 1));
                 existe = true;
                 break;
@@ -485,9 +725,9 @@ public class MetodosDB {
                         System.out.println("\nErro interno.");
                         return;
                 }
-                sb.append(conta.getSituacao()).append("*");
+                sb.append(conta.getSituacao());
 
-                String novoBlocoSemAsterisco = sb.toString().substring(0, sb.length() - 1);
+                String novoBlocoSemAsterisco = sb.toString();
                 blocos.set(i, novoBlocoSemAsterisco);
                 existe = true;
                 break;

@@ -15,11 +15,11 @@ public class Main {
         MetodosDB.dbNome = "DB";
         Utils.limparConsole();
         MenuLogin.exibirMenu();
-        // System.out.println(MetodosDB.dados());
+        System.out.println(MetodosDB.dados());
 
         // Cliente no Banco Corrente: 14762706000 e
         // Gerente: 33578108081
-        // Cliente Poupanca: 87055560071
-        // Cliente Salario: 12843140064
+        // Cliente Poupanca: 87055560071 - senha 123 (Poupança), senha 12 (Corrente)
+        // Cliente Salario: 12843140064 - senha 123
     }
 }

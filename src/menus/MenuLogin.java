@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class MenuLogin {
     private static final String CAMINHO_ARQUIVO = "DB";
@@ -342,23 +343,125 @@ public class MenuLogin {
             System.out.println("CPF ou senha incorreto. Tente novamente.");
             return;
         }
+        List<String> senhas = MetodosDB.consultarSenha(cpf);
+        if (MetodosDB.consultarExiste(cpf) == 1)
+            if (senhas.getFirst().equals(senha)) {
 
-        if (MetodosDB.consultarSenha(cpf).equals(senha)) {
+                int tipoConta = MetodosDB.consultarTipoConta(cpf);
 
-            int tipoConta = MetodosDB.consultarTipoConta(cpf);
+                if (tipoConta == 3) {
+                    MenuFuncionario.Menu(scanner, cpf);
+                } else if (tipoConta == 4) {
+                    MenuGerente.Menu(scanner, cpf);
+                } else {
+                    Conta conta = MetodosDB.consultarConta(cpf);
 
-            if (tipoConta == 3) {
-                MenuFuncionario.Menu(scanner, cpf);
-            } else if (tipoConta == 4) {
-                MenuGerente.Menu(scanner, cpf);
+                    if (conta.getSituacao() == 0) {
+                        System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
+                        return;
+                    }
+
+                    escolherCanal(scanner);
+
+                    if (tipoConta == 0) {
+                        ContaCorrente corrente = (ContaCorrente) conta;
+                        MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+
+                        MetodosDB.salvar(corrente);
+                    } else if (tipoConta == 1) {
+                        ContaPoupanca poupanca = (ContaPoupanca) conta;
+                        MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+
+                        MetodosDB.salvar(poupanca);
+                    } else if (tipoConta == 2) {
+                        ContaSalario salario = (ContaSalario) conta;
+                        MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+
+                        MetodosDB.salvar(salario);
+                    } else {
+                        System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
+                        return;
+                    }
+                }
+
+                return;
             } else {
-                Conta conta = MetodosDB.consultarConta(cpf);
+                Utils.limparConsole();
+                System.out.println("Senha ou CPF incorreto.");
+                return;
+            }
+        else {
+            if (!senhas.getFirst().equals(senhas.getLast())) {
+                if (senhas.getFirst().equals(senha) || senhas.getLast().equals(senha)) {
+                    Conta conta = MetodosDB.consultarConta(cpf, senha);
+                    int tipoConta = conta.getTipoConta();
+
+                    if (conta.getSituacao() == 0) {
+                        System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
+                        return;
+                    }
+                    escolherCanal(scanner);
+
+                    if (tipoConta == 0) {
+                        ContaCorrente corrente = (ContaCorrente) conta;
+                        MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+
+                        MetodosDB.salvar(corrente);
+                    } else if (tipoConta == 1) {
+                        ContaPoupanca poupanca = (ContaPoupanca) conta;
+                        MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+
+                        MetodosDB.salvar(poupanca);
+                    } else if (tipoConta == 2) {
+                        ContaSalario salario = (ContaSalario) conta;
+                        MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+
+                        MetodosDB.salvar(salario);
+                    } else {
+                        System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
+                        return;
+                    }
+                } else {
+                    Utils.limparConsole();
+                    System.out.println("Senha ou CPF incorreto.");
+                    return;
+                }
+                return;
+            } else {
+                if (!senhas.getFirst().equals(senha)) {
+                    Utils.limparConsole();
+                    System.err.println("Senha ou CPF invalido!");
+                    return;
+                }
+
+                Utils.limparConsole();
+                System.err.println("Duas contas cadastradas!\n");
+                List<String> nros = MetodosDB.consultarNroConta(cpf);
+                System.out.println("1. " + nros.getFirst());
+                System.out.println("2. " + nros.getLast());
+                System.out.print("Escolha qual conta acessar: ");
+                String opcao = scanner.nextLine();
+                int index;
+                try {
+                    index = Integer.parseInt(opcao);
+                    if (index < 1 || index > 2) {
+                        System.err.println("Numero inválido");
+                        return;
+                    }
+
+                } catch (NumberFormatException e) {
+                    System.err.println("Numero inválido");
+                    return;
+                }
+
+                UUID nro = UUID.fromString(nros.get(index - 1));
+                Conta conta = MetodosDB.consultarConta(cpf, nro);
+                int tipoConta = conta.getTipoConta();
 
                 if (conta.getSituacao() == 0) {
                     System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
                     return;
                 }
-
                 escolherCanal(scanner);
 
                 if (tipoConta == 0) {
@@ -377,7 +480,7 @@ public class MenuLogin {
 
                     MetodosDB.salvar(salario);
                 } else {
-                    System.out.println("Tipo de conta não reconhecido. Encerrando sessão.");
+                    System.out.println("Erro interno. Encerrando sessão.");
                     return;
                 }
             }
@@ -385,7 +488,6 @@ public class MenuLogin {
             return;
         }
 
-        return;
     }
 
     private static void cadastrarCliente(Scanner scanner) {
@@ -397,8 +499,8 @@ public class MenuLogin {
         if (!ValidarCPF.validar(cpf)) {
             System.out.println("CPF inválido. Cadastro não realizado.");
             return;
-        } else if (MetodosDB.consultarExiste(cpf) == 1) {
-            System.out.println("CPF ja cadastrado no sistema.");
+        } else if (MetodosDB.consultarExiste(cpf) == 2) {
+            System.out.println("Duas contas já foram cadastrados nesse cpf.");
             return;
         }
 
@@ -435,19 +537,17 @@ public class MenuLogin {
                 System.out.println("\n Numero digitado invalido.");
             }
 
+        Cliente novo_cliente;
         if (tipoConta == 0) {
             ContaCorrente corrente = new ContaCorrente(senha, nro_agencia);
-            Cliente novo_cliente = new Cliente(cpf, nome, corrente);
-            MetodosDB.salvar(novo_cliente);
+            novo_cliente = new Cliente(cpf, nome, corrente);
         } else if (tipoConta == 1) {
             ContaPoupanca poupanca = new ContaPoupanca(senha, nro_agencia);
-            Cliente novo_cliente = new Cliente(cpf, nome, poupanca);
-            MetodosDB.salvar(novo_cliente);
-
+            novo_cliente = new Cliente(cpf, nome, poupanca);
         } else {
             ContaSalario salario = new ContaSalario(senha, nro_agencia);
-            Cliente novo_cliente = new Cliente(cpf, nome, salario);
-            MetodosDB.salvar(novo_cliente);
+            novo_cliente = new Cliente(cpf, nome, salario);
         }
+        MetodosDB.salvar(novo_cliente);
     }
 }
