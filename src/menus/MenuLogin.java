@@ -69,8 +69,8 @@ public class MenuLogin {
             System.out.println("1. Login");
             System.out.println("2. Cadastrar novo cliente");
             System.out.println("3. Cadastrar novo funcionario");
-            System.err.println("4. Cadastrar novo gerente");
-            System.err.println("5. Cadastrar nova agencia");
+            System.out.println("4. Cadastrar novo gerente");
+            System.out.println("5. Cadastrar nova agencia");
             System.out.println("6. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
