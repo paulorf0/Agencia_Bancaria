@@ -3,6 +3,7 @@ package menus;
 import classes.ContaCorrente;
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.Logica;
 import outros.MetodosDB;
 import outros.Utils;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class MenuContaCorrente {
 
@@ -60,90 +62,8 @@ public class MenuContaCorrente {
 
                     break;
                 case "4":
-                    System.out.print("Digite o valor para transferência: ");
+                    Logica.logicaTransf(scanner, meu_cpf, canal, contaCorrente);
 
-                    BigDecimal valorTransferencia;
-                    try {
-                        valorTransferencia = new BigDecimal(scanner.nextLine());
-                        if (valorTransferencia.compareTo(BigDecimal.ZERO) <= 0) {
-                            System.out.println("Valor da transferência deve ser positivo.");
-                            break;
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("Valor inválido para transferência.");
-                        break;
-                    }
-
-                    System.out.print("Digite o CPF da conta destino: ");
-                    String cpfDestino = scanner.nextLine();
-
-                    List<Integer> tiposContaDestino = MetodosDB.consultarTipoConta(cpfDestino);
-
-                    if (tiposContaDestino == null || tiposContaDestino.isEmpty()) {
-                        System.out.println("CPF destino não cadastrado no sistema ou não possui contas associadas.");
-                        break;
-                    }
-
-                    // Apenas conta Corrente ou Poupança pode receber transferência.
-                    // Conta salário apenas recebe pagamento.
-                    List<Integer> tiposElegiveisDestino = new ArrayList<>();
-                    for (Integer tipoConta : tiposContaDestino) {
-                        if (tipoConta == 0 || tipoConta == 1) {
-                            tiposElegiveisDestino.add(tipoConta);
-                        }
-                    }
-                    int tipoFinalParaTransferencia = -1;
-
-                    // CONTA SALARIO NÃO PODE RECEBER TRANSFERENCIA. O SYSTEM.OUT APENAS RETORNA QUE
-                    // "CPF NAO CADASTRO" PARA QUANDO TENTA TRANSFERIR PARA CONTA SALARIO.
-
-                    // Se for para conta de mesmo CPF
-                    if (cpfDestino.equals(meu_cpf)) {
-                        // Transferência para o próprio CPF
-                        // Remove o tipo da conta de origem da lista de elegíveis
-
-                        tiposElegiveisDestino.remove(Integer.valueOf(contaCorrente.getTipoConta()));
-                        if (tiposElegiveisDestino.isEmpty()) {
-                            System.out.println(
-                                    "Não há outra conta elegível (Corrente/Poupança) em seu CPF para realizar a transferência.");
-                            break;
-                        }
-
-                        tipoFinalParaTransferencia = tiposElegiveisDestino.get(0);
-                        System.out.println("A transferência será feita para a sua outra conta "
-                                + (tipoFinalParaTransferencia == 0 ? "Corrente" : "Poupança") + ".");
-                                
-                        // Conta destino é poupança ou corrente.
-                    } else if (tipo.size() == 1 && (tipo.getFirst() == 0 || tipo.getFirst() == 1)) {
-                        if (tipo.getFirst() == 1)
-                            System.out.println("A transferência será feita para a conta poupança do cliente.");
-                        else
-                            System.out.println("A transferência será feita para a conta corrente do cliente.");
-
-                        try {
-                            contaCorrente.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
-                        } catch (SaldoException e) {
-                            System.out.println(e.getMessage());
-                        }
-                        // Se tiver mais de duas contas e tiver uma conta poupança ou corrente.
-                    } else if (tipo.size() > 1 && (tipo.contains(0) || tipo.contains(1))) {
-                        System.out.println("O cliente possui duas contas.");
-                        System.out.println("Escolha para qual conta deseja transferir:");
-                        int tipoEscolhido = Utils.capturar_tipo_transf(tipo, scanner);
-                        if (tipoEscolhido == -1) {
-                            System.out.println("Houve um erro interno.");
-                            break;
-                        }
-
-                        try {
-                            contaCorrente.transferir(CPF, tipoEscolhido, valorTransferencia, canal);
-                        } catch (SaldoException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } else if (tipo.contains(2)) {
-                        System.out.println("O cliente só possuí conta salário. Faça um pagamento.");
-                    } else
-                        System.out.println("CPF não cadastrado no sistema.");
                     break;
                 case "5":
                     System.out.print("Digite o valor para pagamento: ");

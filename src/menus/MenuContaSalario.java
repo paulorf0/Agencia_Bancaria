@@ -3,6 +3,7 @@ package menus;
 import classes.ContaSalario;
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.Logica;
 import outros.MetodosDB;
 import outros.Utils;
 
@@ -56,62 +57,8 @@ public class MenuContaSalario {
 
                     break;
                 case "4":
-                    System.out.print("Digite o valor para transferência: ");
-                    BigDecimal valorTransferencia = new BigDecimal(scanner.nextLine());
-
-                    System.out.print("Digite o CPF da conta destino: ");
-                    CPF = scanner.nextLine();
-
-                    tipo = MetodosDB.consultarTipoConta(CPF);
-                    if (CPF.equals(meu_cpf)) {
-                        if (tipo.size() == 1) {
-                            System.out.println("Não é possível transferir.");
-                            break;
-                        }
-
-                        tipo.remove(contaSalario.getTipoConta());
-                        if (tipo.getFirst() == 0)
-                            System.out.println("A transferência será feita para a sua conta corrente.");
-                        else
-                            System.out.println("A transferência será feita para a sua conta poupança.");
-
-                        try {
-                            contaSalario.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
-                        } catch (SaldoException e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    } else if (tipo.size() == 1 && (tipo.getFirst() == 0 || tipo.getFirst() == 1)) {
-
-                        try {
-                            contaSalario.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
-
-                            if (tipo.getFirst() == 1)
-                                System.out.println("A transferência será feita para a conta poupança do cliente.");
-                            else
-                                System.out.println("A transferência será feita para a conta corrente do cliente.");
-                        } catch (SaldoException e) {
-                            System.out.println(e.getMessage());
-                        }
-
-                    } else if (tipo.size() > 1 && (tipo.contains(0) || tipo.contains(1))) {
-                        System.out.println("O cliente possui duas contas em seu CPF.");
-                        System.out.println("Escolha para qual conta deseja transferir:");
-                        int tipoEscolhido = Utils.capturar_tipo_transf(tipo, scanner);
-                        if (tipoEscolhido == -1) {
-                            System.out.println("Houve um erro interno.");
-                            break;
-                        }
-
-                        try {
-                            contaSalario.transferir(CPF, tipoEscolhido, valorTransferencia, canal);
-                        } catch (SaldoException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } else
-                        System.out.println("CPF não cadastrado no sistema.");
+                    Logica.logicaTransf(scanner, meu_cpf, canal, contaSalario);
                     break;
-
                 case "5":
                     System.out.println(contaSalario.consultarInf());
                     break;

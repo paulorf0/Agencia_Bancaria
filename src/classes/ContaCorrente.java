@@ -127,6 +127,31 @@ public class ContaCorrente extends Conta {
     }
 
     @Override
+    public void transferir(String cpf_destino, UUID nro, BigDecimal valor, Canal canal) throws SaldoException {
+        if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
+
+            Conta dest = MetodosDB.consultarConta(cpf_destino, nro);
+            if (dest == null) {
+                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                return;
+            }
+
+            this.saldo = this.saldo.subtract(valor);
+            dest.deposito_transf(nro_conta, valor, canal);
+            MetodosDB.salvar(dest);
+
+            this.ult_movimentacao = LocalDateTime.now();
+
+            Transacao transacao = new Transacao(nro_conta, dest.getNro_conta(), LocalDateTime.now(),
+                    TipoTransacao.TRANSFERENCIA, valor, canal);
+
+            hist.add(transacao);
+        } else {
+            System.out.println("Valor inválido para transferência ou saldo insuficiente.");
+        }
+    }
+
+    @Override
     // Efetua pagamento para conta salário.
     public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {

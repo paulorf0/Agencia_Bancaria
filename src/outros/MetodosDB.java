@@ -149,6 +149,30 @@ public class MetodosDB {
         return nros;
     }
 
+    public static String consultarNroConta(String CPF, int tipo) {
+        String dados = puxarDados();
+
+        if (dados == null)
+            return null;
+
+        String[] blocos = dados.split("\\*");
+        for (String bloco : blocos) {
+            String[] campos = bloco.split(";");
+            if (campos.length > 0) {
+                String cpfRegistro = campos[0].trim();
+                int tipoConta = Integer.parseInt(campos[7].trim());
+                if (cpfRegistro.equals(CPF) && tipoConta == tipo)
+                    // FOI ALTERADO E NÃO TESTADO AINDA.
+                    if (tipoConta < 3)
+                        return campos[3];
+                    else
+                        return null;
+            }
+        }
+
+        return null;
+    }
+
     public static Funcionario consultarFuncionario(String CPF) {
         String dados = puxarDados();
         if (dados == null)
