@@ -203,7 +203,8 @@ public class MenuLogin {
             return null;
         }
 
-        // VALIDAR SE OU O CPF JÁ É FUNCIONÁRIO OU GERENTE, OU SE O CPF JÁ TEM DUAS
+        // VALIDAÇÃO DE QUE SE O CPF FORNECIDO JÁ É FUNCIONÁRIO OU GERENTE, OU SE O CPF
+        // JÁ TEM DUAS
         // CONTAS CADASTRADAS.
         List<Integer> tiposCPF = MetodosDB.consultarTipoConta(cpf);
         if (tiposCPF.size() > 0 && (tiposCPF.size() == 2 || tiposCPF.contains(3) || tiposCPF.contains(4))) {
@@ -397,7 +398,10 @@ public class MenuLogin {
                 return;
             }
         else {
+            // O cliente tem duas contas cadastradas de senhas diferentes.
             if (!senhas.getFirst().equals(senhas.getLast())) {
+                // Se a senha digitada corresponde a alguma conta, então vai buscar a conta que
+                // tem a mesma senha.
                 if (senhas.getFirst().equals(senha) || senhas.getLast().equals(senha)) {
 
                     // Como um "cliente" ou é gerente ou é funcionário e como consultarConta retorna
@@ -448,7 +452,7 @@ public class MenuLogin {
                     return;
                 }
                 return;
-            } else {
+            } else { // Caso em que as senhas das contas são iguais
                 if (!senhas.getFirst().equals(senha)) {
                     Utils.limparConsole();
                     System.out.println("Senha ou CPF invalido!");
@@ -457,49 +461,12 @@ public class MenuLogin {
 
                 Utils.limparConsole();
                 System.out.println("Duas contas cadastradas!\n");
+
                 List<Integer> tipos = MetodosDB.consultarTipoConta(cpf);
                 List<String> nros = MetodosDB.consultarNroConta(cpf);
-
-                String msg1 = "";
-                String msg2 = "";
                 boolean eFuncionario = tipos.contains(3) || tipos.contains(4);
-                int funcionarioEscolha = -1; // 3 para Funcionário, 4 para Gerente, se a opção 2 for staff
-
-                if (eFuncionario) {
-                    // Um usuário não pode ter conta de Funcionário E Gerente no mesmo CPF.
-                    String nroConta;
-                    int tipoDaConta;
-
-                    if (tipos.get(0) == 3 || tipos.get(0) == 4) { // A primeira conta na lista é funcionario
-                        funcionarioEscolha = tipos.get(0);
-                        nroConta = nros.get(1);
-                        tipoDaConta = tipos.get(1);
-                        msg2 = (funcionarioEscolha == 3) ? "2. Funcionario" : "2. Gerente";
-                    } else { // A segunda conta na lista deve ser funcionário
-                        funcionarioEscolha = tipos.get(1);
-                        nroConta = nros.get(0);
-                        tipoDaConta = tipos.get(0);
-                        msg2 = (funcionarioEscolha == 3) ? "2. Funcionario" : "2. Gerente";
-                    }
-                    String stringTipoRegular = tipoDaConta == 0 ? "Corrente"
-                            : (tipoDaConta == 1) ? "Poupança"
-                                    : (tipoDaConta == 2) ? "Salário" : "Desconhecida";
-                    msg1 = "1. " + nroConta + " (" + stringTipoRegular + ")";
-
-                } else {
-                    // Caso padrão: duas contas regulares
-                    int tipo1 = tipos.get(0);
-                    int tipo2 = tipos.get(1);
-                    String stringTipo1 = tipo1 == 0 ? "Corrente"
-                            : (tipo1 == 1) ? "Poupança" : (tipo1 == 2) ? "Salário" : "Desconhecido";
-                    String stringTipo2 = tipo2 == 0 ? "Corrente"
-                            : (tipo2 == 1) ? "Poupança" : (tipo2 == 2) ? "Salário" : "Desconhecido";
-                    msg1 = "1. " + nros.get(0) + " (" + stringTipo1 + ")";
-                    msg2 = "2. " + nros.get(1) + " (" + stringTipo2 + ")";
-                }
-
-                System.out.println(msg1);
-                System.out.println(msg2);
+                int funcionarioEscolha = Utils.info_contas_login(cpf, tipos, nros); // Fazer print da seleção de contas
+                                                                                    // para login.
 
                 System.out.print("Escolha qual conta acessar: ");
                 String opcao = scanner.nextLine();

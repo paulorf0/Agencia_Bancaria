@@ -23,7 +23,8 @@ public class MenuContaSalario {
             System.out.println("4. Transferir");
             System.out.println("5. Consultar informacoes gerais");
             System.out.println("6. Consultar Transações");
-            System.out.println("7. Sair");
+            System.out.println("7. Desativar conta");
+            System.out.println("8. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
             List<Integer> tipo;
@@ -64,15 +65,15 @@ public class MenuContaSalario {
                     tipo = MetodosDB.consultarTipoConta(CPF);
                     if (CPF.equals(meu_cpf)) {
                         if (tipo.size() == 1) {
-                            System.err.println("Não é possível transferir.");
+                            System.out.println("Não é possível transferir.");
                             break;
                         }
 
                         tipo.remove(contaSalario.getTipoConta());
                         if (tipo.getFirst() == 0)
-                            System.err.println("A transferência será feita para a sua conta corrente.");
+                            System.out.println("A transferência será feita para a sua conta corrente.");
                         else
-                            System.err.println("A transferência será feita para a sua conta poupança.");
+                            System.out.println("A transferência será feita para a sua conta poupança.");
 
                         try {
                             contaSalario.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
@@ -81,13 +82,14 @@ public class MenuContaSalario {
                         }
 
                     } else if (tipo.size() == 1 && (tipo.getFirst() == 0 || tipo.getFirst() == 1)) {
-                        if (tipo.getFirst() == 1)
-                            System.err.println("A transferência será feita para a conta poupança do cliente.");
-                        else
-                            System.err.println("A transferência será feita para a conta corrente do cliente.");
 
                         try {
                             contaSalario.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
+
+                            if (tipo.getFirst() == 1)
+                                System.out.println("A transferência será feita para a conta poupança do cliente.");
+                            else
+                                System.out.println("A transferência será feita para a conta corrente do cliente.");
                         } catch (SaldoException e) {
                             System.out.println(e.getMessage());
                         }
@@ -107,7 +109,7 @@ public class MenuContaSalario {
                             System.out.println(e.getMessage());
                         }
                     } else
-                        System.err.println("CPF não cadastrado no sistema.");
+                        System.out.println("CPF não cadastrado no sistema.");
                     break;
 
                 case "5":
@@ -121,6 +123,11 @@ public class MenuContaSalario {
                     System.out.println("--------------------------------------");
                     break;
                 case "7":
+                    contaSalario.setSituacao(0);
+                    System.out.println("Sua conta foi desativada. Um gerente deve ser consultado para reativar.");
+                    executando = false;
+                    break;
+                case "8":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

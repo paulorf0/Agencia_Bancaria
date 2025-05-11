@@ -75,7 +75,6 @@ public class ContaSalario extends Conta {
             hist.add(transacao);
             this.ult_movimentacao = LocalDateTime.now();
         } else {
-            System.out.println("Valor inválido para depósito.");
             throw new SaldoException(SaldoCode.DEPOSITO_NEGATIVO.getMsg());
             // System.out.println("Valor inválido para depósito.");
         }
@@ -92,7 +91,6 @@ public class ContaSalario extends Conta {
             Transacao transacao = new Transacao(nro_conta, LocalDateTime.now(), TipoTransacao.SAQUE, valor, canal);
             hist.add(transacao);
         } else {
-            System.out.println("Valor inválido para saque ou saldo insuficiente.");
             throw new SaldoException(SaldoCode.SAQUE_NEGATIVO.getMsg());
         }
     }
@@ -120,7 +118,7 @@ public class ContaSalario extends Conta {
 
             hist.add(transacao);
         } else {
-            System.out.println("Valor inválido para transferência ou saldo insuficiente.");
+            throw new SaldoException(SaldoCode.SAQUE_NEGATIVO.getMsg());
         }
     }
 

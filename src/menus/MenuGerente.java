@@ -2,6 +2,7 @@ package menus;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 import classes.Conta;
 import classes.Funcionario;
@@ -44,39 +45,60 @@ public class MenuGerente {
                     String cpf_dest = scanner.nextLine();
 
                     if (MetodosDB.consultarExiste(cpf_dest) != 0) {
-                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
+                        // SE O CLIENTE TIVER DUAS CONTAS, MOSTRA A OPÇÃO PARA PODER ESCOLHER QUAL CONTA
+                        // CONSULTAR
 
-                        if (tipo.getFirst() > 2) {
-                            System.out.println("Esse CPF pertence a um funcionario.");
-                        } else {
-                            Conta conta = MetodosDB.consultarConta(cpf_dest);
-                            System.out.println(conta.consultarInf());
+                        // SE O CLIENTE FOR UM FUNCIONÁRIO OU GERENTE, ENTÃO CONSULTAR APENAS A CONTA
+                        // QUE ELE TEM DISPONÍVEL (SE TIVER)
+
+                        String nroString = Utils.info_contas_menu_gerente(cpf_dest, scanner);
+                        UUID nro;
+                        try {
+                            nro = UUID.fromString(nroString);
+                        } catch (Exception e) {
+                            Utils.limparConsole();
+                            System.out.println("Houve um erro interno na consulta.");
+                            break;
                         }
+
+                        // TALVEZ POSSA ADICIONAR MAIS INFORMAÇÕES NA CONSULTA.
+                        Conta conta = MetodosDB.consultarConta(cpf_dest, nro);
+
+                        if (conta.getSituacao() == 0)
+                            System.out.println("\n--------- Conta inátiva --------- \n");
+
+                        System.out.println(conta.consultarInf());
                     } else {
                         System.out.println("Cliente não cadastrado.");
                     }
-
                     break;
                 case "3":
                     System.out.println("Digite o CPF da conta");
                     cpf_dest = scanner.nextLine();
 
                     Utils.limparConsole();
-                    if (MetodosDB.consultarExiste(cpf_dest) == 1) {
-                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
-                        if (tipo.getFirst() > 2)
-                            System.out.println("Esse CPF pertence a um funcionario.");
-                        else {
+                    if (MetodosDB.consultarExiste(cpf_dest) != 0) {
 
-                            Conta conta = MetodosDB.consultarConta(cpf_dest);
-                            if (conta.getSituacao() == 0)
-                                System.out.println("A conta está inativa. Antigas transações: \n");
-                            System.out.println(
-                                    "Transacoes da conta: " + conta.getNro_conta() + "\nCPF: " + cpf_dest + "\n");
-                            System.out.println("--------------------------------------");
-                            System.out.println("\n" + conta.consultarHist());
-                            System.out.println("--------------------------------------");
+                        String nroString = Utils.info_contas_menu_gerente(cpf_dest, scanner);
+                        UUID nro;
+                        try {
+                            nro = UUID.fromString(nroString);
+                        } catch (Exception e) {
+                            Utils.limparConsole();
+                            System.out.println("Houve um erro interno na consulta.");
+                            break;
                         }
+                        Conta conta = MetodosDB.consultarConta(cpf_dest, nro);
+
+                        if (conta.getSituacao() == 0)
+                            System.out.println("A conta está inativa. Antigas transações: \n");
+
+                        System.out.println(
+                                "Transacoes da conta: " + conta.getNro_conta() + "\nCPF: " + cpf_dest + "\n");
+                        System.out.println("--------------------------------------");
+                        System.out.println("\n" + conta.consultarHist());
+                        System.out.println("--------------------------------------");
+
                     } else
                         System.out.println("Cliente não cadastrado.");
 
@@ -86,17 +108,28 @@ public class MenuGerente {
                     cpf_dest = scanner.nextLine();
 
                     Utils.limparConsole();
-                    if (MetodosDB.consultarExiste(cpf_dest) == 1) {
-                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
-                        if (tipo.getFirst() > 2)
-                            System.out.println("Esse CPF pertence a um funcionario.");
-                        else {
+                    if (MetodosDB.consultarExiste(cpf_dest) != 0) {
 
-                            Conta conta = MetodosDB.consultarConta(cpf_dest);
-                            conta.setSituacao(1);
-                            System.out.println("Conta de cliente reativada");
-                            MetodosDB.salvar(conta);
+                        String nroString = Utils.info_contas_menu_gerente(cpf_dest, scanner);
+                        UUID nro;
+                        try {
+                            nro = UUID.fromString(nroString);
+                        } catch (Exception e) {
+                            Utils.limparConsole();
+                            System.out.println("Houve um erro interno na consulta.");
+                            break;
                         }
+                        Conta conta = MetodosDB.consultarConta(cpf_dest, nro);
+                        if (conta.getSituacao() == 1) {
+                            System.out.println("A conta já está ativa. Ultima movimentação em: ");
+                            System.out.println(Utils.formatoData(conta.getUlt_movimentacao()) + "\n");
+                            break;
+                        } else
+                            conta.setSituacao(1);
+
+                        System.out.println("Conta de cliente reativada");
+                        MetodosDB.salvar(conta);
+
                     }
                     break;
                 case "5":

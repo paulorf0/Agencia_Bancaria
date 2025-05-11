@@ -136,8 +136,13 @@ public class MetodosDB {
             String[] campos = bloco.split(";");
             if (campos.length > 0) {
                 String cpfRegistro = campos[0].trim();
+                int tipoConta = Integer.parseInt(campos[7].trim());
                 if (cpfRegistro.equals(CPF))
-                    nros.add(campos[3]);
+                    // FOI ALTERADO E NÃO TESTADO AINDA.
+                    if (tipoConta < 3)
+                        nros.add(campos[3]);
+                    else
+                        nros.add("null");
             }
         }
 

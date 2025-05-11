@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.Utils;
 
 public abstract class Conta {
     protected String senha;
@@ -68,8 +69,8 @@ public abstract class Conta {
     public String consultarInf() {
         return "Número da Conta: " + nro_conta +
                 "\nSaldo: " + saldo +
-                "\nÚltima Movimentação: " + formatoData(ult_movimentacao) +
-                "\nData de Abertura: " + formatoData(data_abertura) +
+                "\nÚltima Movimentação: " + Utils.formatoData(ult_movimentacao) +
+                "\nData de Abertura: " + Utils.formatoData(data_abertura) +
                 "\nTipo de Conta: " + (tipoConta == 0 ? "Corrente" : tipoConta == 1 ? "Poupança" : "Salário") +
                 "\nNúmero da Agência: " + nro_agencia;
     }
@@ -91,7 +92,7 @@ public abstract class Conta {
             if (transacao.getPara_conta() != null && !transacao.getPara_conta().equals(nro_conta))
                 historico.append("Para: " + transacao.getPara_conta()).append("\n");
 
-            historico.append("Data: ").append(formatoData(transacao.getData())).append("\n")
+            historico.append("Data: ").append(Utils.formatoData(transacao.getData())).append("\n")
                     .append("Tipo: ").append(transacao.getTipo()).append("\n")
                     .append("Canal: ").append(canal_string).append("\n")
                     .append("Valor: ").append(transacao.getValor()).append("\n\n");
@@ -104,11 +105,6 @@ public abstract class Conta {
         Locale brasil = new Locale("pt", "BR");
         NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(brasil);
         return formatoMoeda.format(val);
-    }
-
-    public String formatoData(LocalDateTime data) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss", new Locale("pt", "BR"));
-        return data.format(formatter);
     }
 
     public String getSenha() {
