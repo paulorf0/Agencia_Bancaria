@@ -347,11 +347,11 @@ public class MenuLogin {
         if (MetodosDB.consultarExiste(cpf) == 1)
             if (senhas.getFirst().equals(senha)) {
 
-                int tipoConta = MetodosDB.consultarTipoConta(cpf);
+                List<Integer> tipo = MetodosDB.consultarTipoConta(cpf);
 
-                if (tipoConta == 3) {
+                if (tipo.getFirst() == 3) {
                     MenuFuncionario.Menu(scanner, cpf);
-                } else if (tipoConta == 4) {
+                } else if (tipo.getFirst() == 4) {
                     MenuGerente.Menu(scanner, cpf);
                 } else {
                     Conta conta = MetodosDB.consultarConta(cpf);
@@ -363,19 +363,19 @@ public class MenuLogin {
 
                     escolherCanal(scanner);
 
-                    if (tipoConta == 0) {
+                    if (tipo.getFirst() == 0) {
                         ContaCorrente corrente = (ContaCorrente) conta;
-                        MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+                        MenuContaCorrente.exibirMenu(scanner, corrente, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(corrente);
-                    } else if (tipoConta == 1) {
+                    } else if (tipo.getFirst() == 1) {
                         ContaPoupanca poupanca = (ContaPoupanca) conta;
-                        MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+                        MenuContaPoupanca.exibirMenu(scanner, poupanca, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(poupanca);
-                    } else if (tipoConta == 2) {
+                    } else if (tipo.getFirst() == 2) {
                         ContaSalario salario = (ContaSalario) conta;
-                        MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+                        MenuContaSalario.exibirMenu(scanner, salario, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(salario);
                     } else {
@@ -404,17 +404,17 @@ public class MenuLogin {
 
                     if (tipoConta == 0) {
                         ContaCorrente corrente = (ContaCorrente) conta;
-                        MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+                        MenuContaCorrente.exibirMenu(scanner, corrente, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(corrente);
                     } else if (tipoConta == 1) {
                         ContaPoupanca poupanca = (ContaPoupanca) conta;
-                        MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+                        MenuContaPoupanca.exibirMenu(scanner, poupanca, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(poupanca);
                     } else if (tipoConta == 2) {
                         ContaSalario salario = (ContaSalario) conta;
-                        MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+                        MenuContaSalario.exibirMenu(scanner, salario, cpf, MenuLogin.canal);
 
                         MetodosDB.salvar(salario);
                     } else {
@@ -436,9 +436,55 @@ public class MenuLogin {
 
                 Utils.limparConsole();
                 System.err.println("Duas contas cadastradas!\n");
+                List<Integer> tipos = MetodosDB.consultarTipoConta(cpf);
                 List<String> nros = MetodosDB.consultarNroConta(cpf);
-                System.out.println("1. " + nros.getFirst());
-                System.out.println("2. " + nros.getLast());
+
+                String msg1 = "";
+                String msg2 = "";
+
+                // DE ALGUMA FORMA DEVE IMPLEMENTAR A FUNÇÃO DE QUE SE A PESSOA ESCOLHAR ENTRAR NA CONTA GERENTE, QUE ELA CONSIGA ENTRAR. 
+                // NESSA ATUAL FUNÇÃO NÃO TEM A LÓGICA DA ESCOLHA ACIMA.
+                // MSG1 E MSG2 JÁ ESTÁ CORRETO. APENAS FAZER A LÓGICA PARA ENTRAR NO MENU CORRETO.
+
+
+                if ((tipos.contains(3) || tipos.contains(4))) {
+                    // Nunca vai existir contas de gerente e funcionário cadastrado em mesmo CPF.
+                    int idxFunc = tipos.getFirst() == 3 ? 0 : tipos.getLast() == 3 ? 1 : -1;
+                    int idxGerente = tipos.getFirst() == 4 ? 0 : tipos.getLast() == 4 ? 1 : -1;
+                    int idxConta = 1;
+
+                    if (idxFunc != -1) {
+                        int tipo = MetodosDB.consultarTipoConta(UUID.fromString(nros.get(idxConta - idxFunc)));
+                        String stringTipo = tipo == 0 ? "Corrente"
+                                : (tipo == 1) ? "Poupança" : (tipo == 2) ? "Salário" : "NULL";
+
+                        msg1 = "1. " + nros.get(idxConta - idxFunc) + " (" + stringTipo + ")";
+                        msg2 = "2. Funcionario";
+                    } else {
+                        int tipo = MetodosDB.consultarTipoConta(UUID.fromString(nros.get(idxConta - idxGerente)));
+                        String stringTipo = tipo == 0 ? "Corrente"
+                                : (tipo == 1) ? "Poupança" : (tipo == 2) ? "Salário" : "NULL";
+
+                        msg1 = "1. " + nros.get(idxConta - idxGerente) + " (" + stringTipo + ")";
+                        msg2 = "2. Gerente";
+                    }
+                } else {
+                    // Caso padrão: duas contas válidas
+                    int tipo1 = MetodosDB.consultarTipoConta(UUID.fromString(nros.getFirst()));
+                    int tipo2 = MetodosDB.consultarTipoConta(UUID.fromString(nros.getLast()));
+
+                    String stringTipo1 = tipo1 == 0 ? "Corrente"
+                            : (tipo1 == 1) ? "Poupança" : (tipo1 == 2) ? "Salário" : "NULL";
+                    String stringTipo2 = tipo2 == 0 ? "Corrente"
+                            : (tipo2 == 1) ? "Poupança" : (tipo2 == 2) ? "Salário" : "NULL";
+
+                    msg1 = "1. " + nros.getFirst() + " (" + stringTipo1 + ")";
+                    msg2 = "2. " + nros.getLast() + " (" + stringTipo2 + ")";
+                }
+
+                System.out.println(msg1);
+                System.out.println(msg2);
+
                 System.out.print("Escolha qual conta acessar: ");
                 String opcao = scanner.nextLine();
                 int index;
@@ -466,17 +512,17 @@ public class MenuLogin {
 
                 if (tipoConta == 0) {
                     ContaCorrente corrente = (ContaCorrente) conta;
-                    MenuContaCorrente.exibirMenu(scanner, corrente, MenuLogin.canal);
+                    MenuContaCorrente.exibirMenu(scanner, corrente, cpf, MenuLogin.canal);
 
                     MetodosDB.salvar(corrente);
                 } else if (tipoConta == 1) {
                     ContaPoupanca poupanca = (ContaPoupanca) conta;
-                    MenuContaPoupanca.exibirMenu(scanner, poupanca, MenuLogin.canal);
+                    MenuContaPoupanca.exibirMenu(scanner, poupanca, cpf, MenuLogin.canal);
 
                     MetodosDB.salvar(poupanca);
                 } else if (tipoConta == 2) {
                     ContaSalario salario = (ContaSalario) conta;
-                    MenuContaSalario.exibirMenu(scanner, salario, MenuLogin.canal);
+                    MenuContaSalario.exibirMenu(scanner, salario, cpf, MenuLogin.canal);
 
                     MetodosDB.salvar(salario);
                 } else {
@@ -499,7 +545,9 @@ public class MenuLogin {
         if (!ValidarCPF.validar(cpf)) {
             System.out.println("CPF inválido. Cadastro não realizado.");
             return;
-        } else if (MetodosDB.consultarExiste(cpf) == 2) {
+        }
+
+        if (MetodosDB.consultarExiste(cpf) == 2) {
             System.out.println("Duas contas já foram cadastrados nesse cpf.");
             return;
         }

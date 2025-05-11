@@ -1,0 +1,5 @@
+
+
+As transferências são feitas apenas para: Conta Corrente (0) e Conta Poupança (1). 
+Conta poupança não faz pagamento.
+Conta salário (2) apenas recebe pagamento e faz transferência.

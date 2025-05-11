@@ -3,14 +3,16 @@ package menus;
 import classes.ContaPoupanca;
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuContaPoupanca {
 
-    public static void exibirMenu(Scanner scanner, ContaPoupanca contaPoupanca, Canal canal) {
+    public static void exibirMenu(Scanner scanner, ContaPoupanca contaPoupanca, String meu_cpf, Canal canal) {
         boolean executando = true;
 
         while (executando) {
@@ -19,14 +21,16 @@ public class MenuContaPoupanca {
             System.out.println("2. Depositar");
             System.out.println("3. Sacar");
             System.out.println("4. Transferir");
-            System.out.println("5. Efetuar pagamento");
-            System.out.println("6. Calcular rendimento");
-            System.out.println("7. Aplicar rendimento");
-            System.out.println("8. Consultar informacoes gerais");
-            System.out.println("9. Consultar Transações");
-            System.out.println("10. Sair");
+            System.out.println("5. Calcular rendimento");
+            System.out.println("6. Aplicar rendimento");
+            System.out.println("7. Consultar informacoes gerais");
+            System.out.println("8. Consultar Transações");
+            System.out.println("9. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
+
+            List<Integer> tipo;
+            String CPF;
 
             switch (opcao) {
                 case "1":
@@ -58,50 +62,82 @@ public class MenuContaPoupanca {
                 case "4":
                     System.out.print("Digite o valor para transferência: ");
                     BigDecimal valorTransferencia = new BigDecimal(scanner.nextLine());
-
-                    System.out.print("Digite o CPF da conta destino: ");
-                    String CPF = scanner.nextLine();
-
-                    try {
-                        contaPoupanca.transferir(CPF, valorTransferencia, canal);
-                    } catch (SaldoException e) {
-                        System.out.println(e.getMessage());
-                    }
-
-                    break;
-                case "5":
-                    System.out.print("Digite o valor para pagamento: ");
-                    BigDecimal valorPagamento = new BigDecimal(scanner.nextLine());
-
                     System.out.print("Digite o CPF da conta destino: ");
                     CPF = scanner.nextLine();
 
-                    try {
-                        contaPoupanca.efetuarPagamento(CPF, valorPagamento, canal);
-                    } catch (SaldoException e) {
-                        System.out.println(e.getMessage());
+                    if (CPF.equals(meu_cpf)) {
+                        System.err.println("Não é possível fazer transferência para si mesmo.");
+                        break;
                     }
 
+                    tipo = MetodosDB.consultarTipoConta(CPF);
+                    if (CPF.equals(meu_cpf)) {
+                        if (tipo.size() == 1) {
+                            System.err.println("Não é possível transferir.");
+                            break;
+                        }
+
+                        tipo.remove(contaPoupanca.getTipoConta());
+                        if (tipo.getFirst() == 0)
+                            System.err.println("A transferência será feita para a sua conta corrente.");
+                        else
+                            System.err.println("A transferência será feita para a sua conta salário.");
+
+                        try {
+                            contaPoupanca.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                    } else if (tipo.size() == 1 && (tipo.getFirst() == 0 || tipo.getFirst() == 1)) {
+                        if (tipo.getFirst() == 1)
+                            System.err.println("A transferência será feita para a conta poupança do cliente.");
+                        else
+                            System.err.println("A transferência será feita para a conta corrente do cliente.");
+
+                        try {
+                            contaPoupanca.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                    } else if (tipo.size() > 1 && (tipo.contains(0) || tipo.contains(1))) {
+                        System.out.println("O cliente possui duas contas em seu CPF.");
+                        System.out.println("Escolha para qual conta deseja transferir:");
+                        int tipoEscolhido = Utils.capturar_tipo_transf(tipo, scanner);
+                        if (tipoEscolhido == -1) {
+                            System.out.println("Houve um erro interno.");
+                            break;
+                        }
+
+                        try {
+                            contaPoupanca.transferir(CPF, tipoEscolhido, valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } else
+                        System.err.println("CPF não cadastrado no sistema.");
                     break;
-                case "6":
+
+                case "5":
                     contaPoupanca.calcularRendimento();
                     contaPoupanca.consultarSaldo();
                     break;
-                case "7":
+                case "6":
                     contaPoupanca.aplicarRendimento();
                     contaPoupanca.consultarSaldo();
                     break;
-                case "8":
+                case "7":
                     System.out.println(contaPoupanca.consultarInf());
                     break;
-                case "9":
+                case "8":
                     Utils.limparConsole();
                     System.out.println("Transacoes da conta: " + contaPoupanca.getNro_conta());
                     System.out.println("--------------------------------------");
                     System.out.println("\n" + contaPoupanca.consultarHist());
                     System.out.println("--------------------------------------");
                     break;
-                case "10":
+                case "9":
                     System.out.println("Saindo...");
                     executando = false;
                     break;

@@ -1,5 +1,6 @@
 package menus;
 
+import java.util.List;
 import java.util.Scanner;
 
 import classes.Conta;
@@ -13,8 +14,12 @@ public class MenuGerente {
         boolean identificar = true;
 
         while (identificar) {
-            System.out.println(
-                    "1. Consultar minhas informacoes\n2. Consultar uma conta\n3. Verificar historico de transacoes\n4. Reativar conta de cliente\n5. Sair");
+            System.out.println("1. Consultar minhas informacoes");
+            System.out.println("2. Consultar uma conta");
+            System.out.println("3. Verificar historico de transacoes");
+            System.out.println("4. Reativar conta de cliente");
+            System.out.println("5. Sair");
+
             String escolha = scanner.nextLine();
 
             Funcionario func = MetodosDB.consultarFuncionario(CPF);
@@ -38,8 +43,10 @@ public class MenuGerente {
                     System.out.println("Digite o CPF da conta");
                     String cpf_dest = scanner.nextLine();
 
-                    if (MetodosDB.consultarExiste(cpf_dest) == 1) {
-                        if (MetodosDB.consultarTipoConta(cpf_dest) > 2) {
+                    if (MetodosDB.consultarExiste(cpf_dest) != 0) {
+                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
+
+                        if (tipo.getFirst() > 2) {
                             System.out.println("Esse CPF pertence a um funcionario.");
                         } else {
                             Conta conta = MetodosDB.consultarConta(cpf_dest);
@@ -56,7 +63,8 @@ public class MenuGerente {
 
                     Utils.limparConsole();
                     if (MetodosDB.consultarExiste(cpf_dest) == 1) {
-                        if (MetodosDB.consultarTipoConta(cpf_dest) > 2)
+                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
+                        if (tipo.getFirst() > 2)
                             System.out.println("Esse CPF pertence a um funcionario.");
                         else {
 
@@ -79,7 +87,8 @@ public class MenuGerente {
 
                     Utils.limparConsole();
                     if (MetodosDB.consultarExiste(cpf_dest) == 1) {
-                        if (MetodosDB.consultarTipoConta(cpf_dest) > 2)
+                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf_dest);
+                        if (tipo.getFirst() > 2)
                             System.out.println("Esse CPF pertence a um funcionario.");
                         else {
 

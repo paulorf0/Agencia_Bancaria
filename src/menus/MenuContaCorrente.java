@@ -3,14 +3,16 @@ package menus;
 import classes.ContaCorrente;
 import enums.Canal;
 import exceptions.SaldoException;
+import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuContaCorrente {
 
-    public static void exibirMenu(Scanner scanner, ContaCorrente contaCorrente, Canal canal) {
+    public static void exibirMenu(Scanner scanner, ContaCorrente contaCorrente, String meu_cpf, Canal canal) {
         boolean executando = true;
 
         while (executando) {
@@ -26,7 +28,8 @@ public class MenuContaCorrente {
             System.out.println("9. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
-
+            List<Integer> tipo;
+            String CPF;
             // TO-DO: Todos os métodos de manipulação retornam um tipo de exception. Deve
             // ser tratado.
             switch (opcao) {
@@ -59,20 +62,66 @@ public class MenuContaCorrente {
                     System.out.print("Digite o valor para transferência: ");
                     BigDecimal valorTransferencia = new BigDecimal(scanner.nextLine());
                     System.out.print("Digite o CPF da conta destino: ");
-                    String CPF = scanner.nextLine();
+                    CPF = scanner.nextLine();
 
-                    try {
-                        contaCorrente.transferir(CPF, valorTransferencia, canal);
-                    } catch (SaldoException e) {
-                        System.out.println(e.getMessage());
-                    }
+                    tipo = MetodosDB.consultarTipoConta(CPF);
+                    if (CPF.equals(meu_cpf)) {
+                        if (tipo.size() == 1) {
+                            System.err.println("Não é possível transferir.");
+                            break;
+                        }
 
+                        tipo.remove(contaCorrente.getTipoConta());
+                        if (tipo.getFirst() == 1)
+                            System.err.println("A transferência será feita para a sua conta poupança.");
+                        else
+                            System.err.println("A transferência será feita para a sua conta salário.");
+
+                        try {
+                            contaCorrente.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                    } else if (tipo.size() == 1 && (tipo.getFirst() == 0 || tipo.getFirst() == 1)) {
+                        if (tipo.getFirst() == 1)
+                            System.err.println("A transferência será feita para a conta poupança do cliente.");
+                        else
+                            System.err.println("A transferência será feita para a conta corrente do cliente.");
+
+                        try {
+                            contaCorrente.transferir(CPF, tipo.getFirst(), valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+
+                    } else if (tipo.size() > 1 && (tipo.contains(0) || tipo.contains(1))) {
+                        System.out.println("O cliente possui duas contas.");
+                        System.out.println("Escolha para qual conta deseja transferir:");
+                        int tipoEscolhido = Utils.capturar_tipo_transf(tipo, scanner);
+                        if (tipoEscolhido == -1) {
+                            System.out.println("Houve um erro interno.");
+                            break;
+                        }
+
+                        try {
+                            contaCorrente.transferir(CPF, tipoEscolhido, valorTransferencia, canal);
+                        } catch (SaldoException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } else
+                        System.err.println("CPF não cadastrado no sistema.");
                     break;
                 case "5":
                     System.out.print("Digite o valor para pagamento: ");
                     BigDecimal valorPagamento = new BigDecimal(scanner.nextLine());
                     System.out.print("Digite o CPF da conta destino: ");
                     CPF = scanner.nextLine();
+                    tipo = MetodosDB.consultarTipoConta(CPF);
+                    if (!tipo.contains(2)) {
+                        System.out.println("O cliente não possuí uma conta salário.");
+                        break;
+                    }
 
                     try {
                         contaCorrente.efetuarPagamento(CPF, valorPagamento, canal);

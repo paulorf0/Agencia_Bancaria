@@ -59,7 +59,7 @@ public abstract class Conta {
 
     public abstract void sacar(BigDecimal valor, Canal canal) throws SaldoException;
 
-    public abstract void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException;
+    public abstract void transferir(String cpf_destino, int tipo, BigDecimal valor, Canal canal) throws SaldoException;
 
     public abstract void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException;
 

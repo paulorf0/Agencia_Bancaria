@@ -101,11 +101,17 @@ public class ContaCorrente extends Conta {
     }
 
     @Override
-    public void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
+    // Deve-se indicar se é uma transferência para conta corrente ou conta poupança.
+    public void transferir(String cpf_destino, int tipo, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
-            this.saldo = this.saldo.subtract(valor);
-            Conta dest = MetodosDB.consultarConta(cpf_destino);
 
+            Conta dest = MetodosDB.consultarConta(cpf_destino, tipo);
+            if (dest == null) {
+                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                return;
+            }
+
+            this.saldo = this.saldo.subtract(valor);
             dest.deposito_transf(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 
@@ -121,9 +127,9 @@ public class ContaCorrente extends Conta {
     }
 
     @Override
+    // Efetua pagamento para conta salário.
     public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
-            this.ult_movimentacao = LocalDateTime.now();
 
             if (MetodosDB.consultarExiste(cpf_destino) == 0) {
                 outros.Utils.limparConsole();
@@ -131,12 +137,21 @@ public class ContaCorrente extends Conta {
                 return;
             }
 
-            Conta dest = MetodosDB.consultarConta(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino, 2);
             if (dest == null) {
-                System.out.println("O CPF pertence a um funcionario");
+                System.out.println("Não é possível fazer pagamento para esse cliente.");
                 return;
             }
 
+            if (this.saldo.compareTo(valor) >= 0) {
+                this.saldo = this.saldo.subtract(valor);
+            } else {
+                BigDecimal restante = valor.subtract(this.saldo);
+                this.saldo = BigDecimal.ZERO;
+                this.limite_cheque_especial = this.limite_cheque_especial.subtract(restante);
+            }
+
+            this.ult_movimentacao = LocalDateTime.now();
             dest.deposito_pagamento(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 

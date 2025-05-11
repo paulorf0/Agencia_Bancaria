@@ -104,11 +104,15 @@ public class ContaPoupanca extends Conta {
     }
 
     @Override
-    public void transferir(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
+    public void transferir(String cpf_destino, int tipo, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
-            this.saldo = this.saldo.subtract(valor);
-            Conta dest = MetodosDB.consultarConta(cpf_destino);
+            Conta dest = MetodosDB.consultarConta(cpf_destino, tipo);
+            if (dest == null) {
+                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                return;
+            }
 
+            this.saldo = this.saldo.subtract(valor);
             dest.deposito_transf(nro_conta, valor, canal);
             MetodosDB.salvar(dest);
 
@@ -125,20 +129,7 @@ public class ContaPoupanca extends Conta {
 
     @Override
     public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
-        if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
-            this.ult_movimentacao = LocalDateTime.now();
-
-            Conta dest = MetodosDB.consultarConta(cpf_destino);
-            dest.deposito_pagamento(nro_conta, valor, canal);
-            MetodosDB.salvar(dest);
-
-            Transacao transacao = new Transacao(this.nro_conta, dest.getNro_conta(), LocalDateTime.now(),
-                    TipoTransacao.PAGAMENTO, valor, canal);
-
-            hist.add(transacao);
-        } else {
-            System.out.println("Valor inválido para pagamento ou saldo insuficiente.");
-        }
+        // Não efetua pagamento.
     }
 
     @Override
