@@ -19,9 +19,9 @@ public class MenuGerente {
             System.out.println("3. Verificar historico de transacoes");
             System.out.println("4. Cadastrar Funcionário");
             System.out.println("5. Cadastrar Cliente");
-            System.out.println("6. Cadastrar Agência");
-            System.out.println("7. Reativar conta de cliente");
-            System.out.println("8. Sair");
+
+            System.out.println("6. Reativar conta de cliente");
+            System.out.println("7. Sair");
 
             String escolha = scanner.nextLine();
 
@@ -111,10 +111,8 @@ public class MenuGerente {
                 case "5":
                     MenuCadastro.cadastrarCliente(scanner);
                     break;
+
                 case "6":
-                    MenuCadastro.cadastrarAgencia(scanner);
-                    break;
-                case "7":
                     System.out.println("Digite o CPF da conta");
                     cpf_dest = scanner.nextLine();
 
@@ -143,7 +141,7 @@ public class MenuGerente {
 
                     }
                     break;
-                case "8":
+                case "7":
                     Utils.limparConsole();
                     System.out.println("Saindo...");
                     identificar = false;

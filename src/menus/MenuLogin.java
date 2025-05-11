@@ -68,6 +68,7 @@ public class MenuLogin {
             System.out.println("\n=== Banco Digital ===");
             System.out.println("1. Login");
             System.out.println("2. Cadastrar novo gerente");
+            System.out.println("3. Cadastrar agencia");
             System.out.println("3. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
@@ -80,6 +81,9 @@ public class MenuLogin {
                     MenuCadastro.cadastrarGerente(scanner);
                     break;
                 case "3":
+                    MenuCadastro.cadastrarAgencia(scanner);
+                    break;
+                case "4":
                     System.out.println("Saindo...");
                     sair = true;
                     break;
