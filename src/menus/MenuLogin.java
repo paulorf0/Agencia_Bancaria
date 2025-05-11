@@ -195,19 +195,25 @@ public class MenuLogin {
     }
 
     private static Funcionario capturarInformacoes(Scanner scanner) {
-        Endereco end = capturarEndereco(scanner);
-
-        System.out.print("Nome completo: ");
-        String nomeCompleto = scanner.nextLine();
-
         System.out.print("CPF: ");
-
         String cpf = scanner.nextLine();
         if (!ValidarCPF.validar(cpf)) {
             Utils.limparConsole();
             System.out.println("CPF invalido. Saindo...");
             return null;
         }
+
+        // VALIDAR SE OU O CPF JÁ É FUNCIONÁRIO OU GERENTE, OU SE O CPF JÁ TEM DUAS
+        // CONTAS CADASTRADAS.
+        List<Integer> tiposCPF = MetodosDB.consultarTipoConta(cpf);
+        if (tiposCPF.size() > 0 && (tiposCPF.size() == 2 || tiposCPF.contains(3) || tiposCPF.contains(4))) {
+            System.out.println("Não é possível fazer cadastro desse CPF.");
+            return null;
+        }
+
+        Endereco end = capturarEndereco(scanner);
+        System.out.print("Nome completo: ");
+        String nomeCompleto = scanner.nextLine();
 
         System.out.print("RG: ");
         String rg = scanner.nextLine();
@@ -393,7 +399,22 @@ public class MenuLogin {
         else {
             if (!senhas.getFirst().equals(senhas.getLast())) {
                 if (senhas.getFirst().equals(senha) || senhas.getLast().equals(senha)) {
+
+                    // Como um "cliente" ou é gerente ou é funcionário e como consultarConta retorna
+                    // null caso seja um gerente ou funcionário, então, se não não conter o 3 (é
+                    // funcionário),
+                    // necessáriamente, foi tentado acessar uma conta de gerente.
                     Conta conta = MetodosDB.consultarConta(cpf, senha);
+                    if (conta == null) {
+                        List<Integer> tipo = MetodosDB.consultarTipoConta(cpf);
+
+                        if (tipo.contains(3)) {
+                            MenuFuncionario.Menu(scanner, cpf);
+                        } else
+                            MenuGerente.Menu(scanner, cpf);
+                        return;
+                    }
+
                     int tipoConta = conta.getTipoConta();
 
                     if (conta.getSituacao() == 0) {
@@ -430,56 +451,51 @@ public class MenuLogin {
             } else {
                 if (!senhas.getFirst().equals(senha)) {
                     Utils.limparConsole();
-                    System.err.println("Senha ou CPF invalido!");
+                    System.out.println("Senha ou CPF invalido!");
                     return;
                 }
 
                 Utils.limparConsole();
-                System.err.println("Duas contas cadastradas!\n");
+                System.out.println("Duas contas cadastradas!\n");
                 List<Integer> tipos = MetodosDB.consultarTipoConta(cpf);
                 List<String> nros = MetodosDB.consultarNroConta(cpf);
 
                 String msg1 = "";
                 String msg2 = "";
+                boolean eFuncionario = tipos.contains(3) || tipos.contains(4);
+                int funcionarioEscolha = -1; // 3 para Funcionário, 4 para Gerente, se a opção 2 for staff
 
-                // DE ALGUMA FORMA DEVE IMPLEMENTAR A FUNÇÃO DE QUE SE A PESSOA ESCOLHAR ENTRAR NA CONTA GERENTE, QUE ELA CONSIGA ENTRAR. 
-                // NESSA ATUAL FUNÇÃO NÃO TEM A LÓGICA DA ESCOLHA ACIMA.
-                // MSG1 E MSG2 JÁ ESTÁ CORRETO. APENAS FAZER A LÓGICA PARA ENTRAR NO MENU CORRETO.
+                if (eFuncionario) {
+                    // Um usuário não pode ter conta de Funcionário E Gerente no mesmo CPF.
+                    String nroConta;
+                    int tipoDaConta;
 
-
-                if ((tipos.contains(3) || tipos.contains(4))) {
-                    // Nunca vai existir contas de gerente e funcionário cadastrado em mesmo CPF.
-                    int idxFunc = tipos.getFirst() == 3 ? 0 : tipos.getLast() == 3 ? 1 : -1;
-                    int idxGerente = tipos.getFirst() == 4 ? 0 : tipos.getLast() == 4 ? 1 : -1;
-                    int idxConta = 1;
-
-                    if (idxFunc != -1) {
-                        int tipo = MetodosDB.consultarTipoConta(UUID.fromString(nros.get(idxConta - idxFunc)));
-                        String stringTipo = tipo == 0 ? "Corrente"
-                                : (tipo == 1) ? "Poupança" : (tipo == 2) ? "Salário" : "NULL";
-
-                        msg1 = "1. " + nros.get(idxConta - idxFunc) + " (" + stringTipo + ")";
-                        msg2 = "2. Funcionario";
-                    } else {
-                        int tipo = MetodosDB.consultarTipoConta(UUID.fromString(nros.get(idxConta - idxGerente)));
-                        String stringTipo = tipo == 0 ? "Corrente"
-                                : (tipo == 1) ? "Poupança" : (tipo == 2) ? "Salário" : "NULL";
-
-                        msg1 = "1. " + nros.get(idxConta - idxGerente) + " (" + stringTipo + ")";
-                        msg2 = "2. Gerente";
+                    if (tipos.get(0) == 3 || tipos.get(0) == 4) { // A primeira conta na lista é funcionario
+                        funcionarioEscolha = tipos.get(0);
+                        nroConta = nros.get(1);
+                        tipoDaConta = tipos.get(1);
+                        msg2 = (funcionarioEscolha == 3) ? "2. Funcionario" : "2. Gerente";
+                    } else { // A segunda conta na lista deve ser funcionário
+                        funcionarioEscolha = tipos.get(1);
+                        nroConta = nros.get(0);
+                        tipoDaConta = tipos.get(0);
+                        msg2 = (funcionarioEscolha == 3) ? "2. Funcionario" : "2. Gerente";
                     }
+                    String stringTipoRegular = tipoDaConta == 0 ? "Corrente"
+                            : (tipoDaConta == 1) ? "Poupança"
+                                    : (tipoDaConta == 2) ? "Salário" : "Desconhecida";
+                    msg1 = "1. " + nroConta + " (" + stringTipoRegular + ")";
+
                 } else {
-                    // Caso padrão: duas contas válidas
-                    int tipo1 = MetodosDB.consultarTipoConta(UUID.fromString(nros.getFirst()));
-                    int tipo2 = MetodosDB.consultarTipoConta(UUID.fromString(nros.getLast()));
-
+                    // Caso padrão: duas contas regulares
+                    int tipo1 = tipos.get(0);
+                    int tipo2 = tipos.get(1);
                     String stringTipo1 = tipo1 == 0 ? "Corrente"
-                            : (tipo1 == 1) ? "Poupança" : (tipo1 == 2) ? "Salário" : "NULL";
+                            : (tipo1 == 1) ? "Poupança" : (tipo1 == 2) ? "Salário" : "Desconhecido";
                     String stringTipo2 = tipo2 == 0 ? "Corrente"
-                            : (tipo2 == 1) ? "Poupança" : (tipo2 == 2) ? "Salário" : "NULL";
-
-                    msg1 = "1. " + nros.getFirst() + " (" + stringTipo1 + ")";
-                    msg2 = "2. " + nros.getLast() + " (" + stringTipo2 + ")";
+                            : (tipo2 == 1) ? "Poupança" : (tipo2 == 2) ? "Salário" : "Desconhecido";
+                    msg1 = "1. " + nros.get(0) + " (" + stringTipo1 + ")";
+                    msg2 = "2. " + nros.get(1) + " (" + stringTipo2 + ")";
                 }
 
                 System.out.println(msg1);
@@ -491,47 +507,79 @@ public class MenuLogin {
                 try {
                     index = Integer.parseInt(opcao);
                     if (index < 1 || index > 2) {
-                        System.err.println("Numero inválido");
+                        System.out.println("Numero inválido");
                         return;
                     }
 
                 } catch (NumberFormatException e) {
-                    System.err.println("Numero inválido");
+                    System.out.println("Numero inválido");
                     return;
                 }
 
-                UUID nro = UUID.fromString(nros.get(index - 1));
-                Conta conta = MetodosDB.consultarConta(cpf, nro);
-                int tipoConta = conta.getTipoConta();
-
-                if (conta.getSituacao() == 0) {
-                    System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
+                if (eFuncionario && index == 2) {
+                    // Usuário escolheu a opção 2, que é a conta de Funcionário ou Gerente
+                    if (funcionarioEscolha == 3) {
+                        MenuFuncionario.Menu(scanner, cpf);
+                    } else if (funcionarioEscolha == 4) {
+                        MenuGerente.Menu(scanner, cpf);
+                    } else {
+                        // Este caso não deveria ocorrer se funcionarioEscolha foi definido corretamente
+                        System.out.println("Erro interno ao identificar tipo de Funcionário. Encerrando sessão.");
+                    }
                     return;
-                }
-                escolherCanal(scanner);
-
-                if (tipoConta == 0) {
-                    ContaCorrente corrente = (ContaCorrente) conta;
-                    MenuContaCorrente.exibirMenu(scanner, corrente, cpf, MenuLogin.canal);
-
-                    MetodosDB.salvar(corrente);
-                } else if (tipoConta == 1) {
-                    ContaPoupanca poupanca = (ContaPoupanca) conta;
-                    MenuContaPoupanca.exibirMenu(scanner, poupanca, cpf, MenuLogin.canal);
-
-                    MetodosDB.salvar(poupanca);
-                } else if (tipoConta == 2) {
-                    ContaSalario salario = (ContaSalario) conta;
-                    MenuContaSalario.exibirMenu(scanner, salario, cpf, MenuLogin.canal);
-
-                    MetodosDB.salvar(salario);
                 } else {
-                    System.out.println("Erro interno. Encerrando sessão.");
-                    return;
-                }
-            }
+                    // Usuário escolheu uma conta regular (opção 1 no cenário misto, ou qualquer
+                    // opção no cenário de duas contas regulares)
+                    String numeroContaSelecionadaStr;
+                    if (eFuncionario) {
+                        if (tipos.get(0) == 3 || tipos.get(0) == 4)
+                            numeroContaSelecionadaStr = nros.get(1);
+                        else {
+                            numeroContaSelecionadaStr = nros.get(0);
+                        }
+                    } else {
+                        numeroContaSelecionadaStr = nros.get(index - 1);
+                    }
 
-            return;
+                    UUID nro = UUID.fromString(numeroContaSelecionadaStr);
+                    Conta conta = MetodosDB.consultarConta(cpf, nro);
+
+                    if (conta == null) {
+                        System.out.println("Erro ao carregar dados da conta selecionada. Encerrando sessão.");
+                        return;
+                    }
+
+                    if (conta.getSituacao() == 0) {
+                        System.out.println("Sua conta está inativa. É necessário que um gerente ative.");
+                        return;
+                    }
+
+                    escolherCanal(scanner);
+                    int tipoConta = conta.getTipoConta();
+
+                    if (tipoConta == 0) {
+                        ContaCorrente corrente = (ContaCorrente) conta;
+                        MenuContaCorrente.exibirMenu(scanner, corrente, cpf, MenuLogin.canal);
+
+                        MetodosDB.salvar(corrente);
+                    } else if (tipoConta == 1) {
+                        ContaPoupanca poupanca = (ContaPoupanca) conta;
+                        MenuContaPoupanca.exibirMenu(scanner, poupanca, cpf, MenuLogin.canal);
+
+                        MetodosDB.salvar(poupanca);
+                    } else if (tipoConta == 2) {
+                        ContaSalario salario = (ContaSalario) conta;
+                        MenuContaSalario.exibirMenu(scanner, salario, cpf, MenuLogin.canal);
+
+                        MetodosDB.salvar(salario);
+                    } else {
+                        System.out.println("Erro interno. Encerrando sessão.");
+                        return;
+                    }
+                }
+
+                return;
+            }
         }
 
     }
