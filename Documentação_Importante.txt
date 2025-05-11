@@ -1,3 +1,5 @@
+Apenas Gerente pode cadastrar um cliente, funcionário e agência.
+
 
 
 As transferências são feitas apenas para: Conta Corrente (0) e Conta Poupança (1). 

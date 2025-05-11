@@ -8,10 +8,8 @@ import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.UUID;
 
 public class MenuContaCorrente {
 

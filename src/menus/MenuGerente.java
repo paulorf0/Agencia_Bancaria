@@ -1,6 +1,5 @@
 package menus;
 
-import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -18,8 +17,11 @@ public class MenuGerente {
             System.out.println("1. Consultar minhas informacoes");
             System.out.println("2. Consultar uma conta");
             System.out.println("3. Verificar historico de transacoes");
-            System.out.println("4. Reativar conta de cliente");
-            System.out.println("5. Sair");
+            System.out.println("4. Cadastrar Funcionário");
+            System.out.println("5. Cadastrar Cliente");
+            System.out.println("6. Cadastrar Agência");
+            System.out.println("7. Reativar conta de cliente");
+            System.out.println("8. Sair");
 
             String escolha = scanner.nextLine();
 
@@ -104,6 +106,15 @@ public class MenuGerente {
 
                     break;
                 case "4":
+                    MenuCadastro.cadastrarFuncionario(scanner);
+                    break;
+                case "5":
+                    MenuCadastro.cadastrarCliente(scanner);
+                    break;
+                case "6":
+                    MenuCadastro.cadastrarAgencia(scanner);
+                    break;
+                case "7":
                     System.out.println("Digite o CPF da conta");
                     cpf_dest = scanner.nextLine();
 
@@ -132,7 +143,7 @@ public class MenuGerente {
 
                     }
                     break;
-                case "5":
+                case "8":
                     Utils.limparConsole();
                     System.out.println("Saindo...");
                     identificar = false;

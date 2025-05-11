@@ -219,7 +219,12 @@ public class Utils {
                 msg1 = "1. " + nros.get(0) + " (" + stringTipo1 + ")";
                 msg2 = "2. " + nros.get(1) + " (" + stringTipo2 + ")";
             }
-
+        else {
+            if (tipos.getFirst() < 3)
+                return nros.getFirst();
+            else
+                return null;
+        }
         System.out.println("Duas contas regulares para consultar: ");
         System.out.println(msg1);
         System.out.println(msg2);

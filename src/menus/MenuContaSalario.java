@@ -4,11 +4,9 @@ import classes.ContaSalario;
 import enums.Canal;
 import exceptions.SaldoException;
 import outros.Logica;
-import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Scanner;
 
 public class MenuContaSalario {
@@ -28,8 +26,6 @@ public class MenuContaSalario {
             System.out.println("8. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
-            List<Integer> tipo;
-            String CPF;
             switch (opcao) {
                 case "1":
                     contaSalario.consultarSaldo();

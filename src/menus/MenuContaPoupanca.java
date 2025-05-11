@@ -4,11 +4,9 @@ import classes.ContaPoupanca;
 import enums.Canal;
 import exceptions.SaldoException;
 import outros.Logica;
-import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Scanner;
 
 public class MenuContaPoupanca {
@@ -30,9 +28,6 @@ public class MenuContaPoupanca {
             System.out.println("10. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
-
-            List<Integer> tipo;
-            String CPF;
 
             switch (opcao) {
                 case "1":
