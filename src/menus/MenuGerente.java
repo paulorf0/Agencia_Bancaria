@@ -14,14 +14,15 @@ public class MenuGerente {
         boolean identificar = true;
 
         while (identificar) {
+            System.out.println("\n=== MENU GERENTE ===");
             System.out.println("1. Consultar minhas informacoes");
             System.out.println("2. Consultar uma conta");
             System.out.println("3. Verificar historico de transacoes");
             System.out.println("4. Cadastrar Funcionário");
             System.out.println("5. Cadastrar Cliente");
-
             System.out.println("6. Reativar conta de cliente");
             System.out.println("7. Sair");
+            System.out.print("Escolha uma opção: ");
 
             String escolha = scanner.nextLine();
 

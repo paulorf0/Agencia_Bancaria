@@ -9,7 +9,7 @@ import enums.Sexo;
 public class Gerente extends Funcionario {
     private LocalDate data_ingr_gerente;
     private List<String> cursos;
-    private BigDecimal comissao;
+    private static BigDecimal comissao;
 
     public Gerente(int nro_cart, int nro_agencia, Sexo sexo, BigDecimal salario, LocalDate anoIngresso,
             LocalDate data_ingr_gerente, List<String> cursos, BigDecimal comissao) {
@@ -38,11 +38,11 @@ public class Gerente extends Funcionario {
         return cString.toString();
     }
 
-    public BigDecimal getComissao() {
+    public static BigDecimal getComissao() {
         return comissao;
     }
 
-    public void setComissao(BigDecimal comis) {
+    public static void setComissao(BigDecimal comis) {
         comissao = comis;
     }
 

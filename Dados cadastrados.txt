@@ -1,0 +1,149 @@
+=== Banco Digital ===
+1. Login
+2. Cadastrar novo gerente
+3. Cadastrar agencia
+3. Sair
+Escolha uma opção: 3
+Digite a cidade: UBERLANDIA
+Digite o estado: MG
+Digite o bairro: CENTRO
+Digite o número do local: 111
+Digite o nome da agencia: 141 - CENTRO
+Digite o número da agência: 141
+
+=== Banco Digital ===
+1. Login
+2. Cadastrar novo gerente
+3. Cadastrar agencia
+3. Sair
+Escolha uma opção: 3
+Digite a cidade: UBERLANDIA
+Digite o estado: MG
+Digite o bairro: MARTINS
+Digite o número do local: 110
+Digite o nome da agencia: 145 - MARTINS
+Digite o número da agência: 145
+
+
+=== Banco Digital ===
+1. Login
+2. Cadastrar novo gerente
+3. Cadastrar agencia
+3. Sair
+Escolha uma opção: 2
+CPF: 33578108081
+Digite a cidade: UBERLANDIA
+Digite o estado: MG
+Digite o bairro: CENTRO
+Digite o número do local: 111
+Nome completo: JOSE DA SILVA
+RG: 11245879
+Senha: 123
+Data de nascimento (yyyy-MM-dd): 1981-07-24
+Estado civil (SOLTEIRO, CASADO, DIVORCIADO, VIUVO): SOLTEIRO
+Número da carteira de trabalho: 123987
+Número da agência: 141
+Sexo (MASCULINO, FEMININO): MASCULINO
+Salário: 12500
+Ano de ingresso (yyyy-MM-dd): 2000-07-01
+Data de ingresso como gerente (yyyy-MM-dd): 2002-06-01
+Cursos (separados por vírgula): A, B, C
+Comissão: 2500
+
+=== Banco Digital ===
+1. Login
+2. Cadastrar novo gerente
+3. Cadastrar agencia
+3. Sair
+Escolha uma opção: 1
+CPF: 33578108081
+Senha: 123
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
+4
+Cargo: CAIXA
+CPF: 02994841061
+Digite a cidade: UBERLANDIA
+Digite o estado: MG
+Digite o bairro: CENTRO
+Digite o número do local: 111
+Nome completo: JOSE MARIA DA SILVA
+RG: 11478952
+Senha: 121
+Data de nascimento (yyyy-MM-dd): 1985-04-12
+Estado civil (SOLTEIRO, CASADO, DIVORCIADO, VIUVO): CASADO
+Número da carteira de trabalho: 123987
+Número da agência: 141
+Sexo (MASCULINO, FEMININO): MASCULINO
+Salário: 6500
+Ano de ingresso (yyyy-MM-dd): 2004-07-21
+Funcionário cadastrado com sucesso!
+
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
+5
+Digite o CPF: 14762706000
+Nome: CLAUDIO DA SILVA
+Senha: 110
+Tipo de conta (corrente = 0/poupanca = 1/salario = 2): 0
+Numero da agencia: 141
+
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
+5
+Digite o CPF: 87055560071
+Nome: MARIA ABADIA SANTOS
+Senha: 323
+Tipo de conta (corrente = 0/poupanca = 1/salario = 2): 1
+Numero da agencia: 141
+
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
+5
+Digite o CPF: 87055560071
+Nome: MARIA ABADIA SILVA
+Senha: 120
+Tipo de conta (corrente = 0/poupanca = 1/salario = 2): 0
+Numero da agencia: 141
+
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
+5
+Digite o CPF: 12843140064
+Nome: JOAO RICARDO CASTRO
+Senha: 123
+Tipo de conta (corrente = 0/poupanca = 1/salario = 2): 2
+Numero da agencia: 141
+
+1. Consultar minhas informacoes
+2. Consultar uma conta
+3. Verificar historico de transacoes
+4. Cadastrar Funcionário
+5. Cadastrar Cliente
+6. Reativar conta de cliente
+7. Sair
