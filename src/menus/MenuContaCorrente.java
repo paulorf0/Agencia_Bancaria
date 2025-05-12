@@ -4,12 +4,11 @@ import classes.ContaCorrente;
 import enums.Canal;
 import exceptions.SaldoException;
 import outros.Logica;
-import outros.MetodosDB;
 import outros.Utils;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 
 public class MenuContaCorrente {
 
@@ -29,7 +28,6 @@ public class MenuContaCorrente {
             System.out.println("9. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
-            List<Integer> tipo;
             String CPF;
             // TO-DO: Todos os métodos de manipulação retornam um tipo de exception. Deve
             // ser tratado.
@@ -68,14 +66,20 @@ public class MenuContaCorrente {
                     BigDecimal valorPagamento = new BigDecimal(scanner.nextLine());
                     System.out.print("Digite o CPF da conta destino: ");
                     CPF = scanner.nextLine();
-                    tipo = MetodosDB.consultarTipoConta(CPF);
-                    if (!tipo.contains(2)) {
-                        System.out.println("O cliente não possuí uma conta salário.");
+                    String nroString = Utils.nro_conta_pagamento(CPF, scanner);
+                    UUID nro;
+                    try {
+                        nro = UUID.fromString(nroString);
+
+                    } catch (Exception e) {
+                        System.out.println("Erro interno.");
                         break;
                     }
 
                     try {
-                        contaCorrente.efetuarPagamento(CPF, valorPagamento, canal);
+                        contaCorrente.efetuarPagamento(CPF, nro, valorPagamento, canal);
+
+                        System.err.println("Pagamento realizado com sucesso.\n");
                     } catch (SaldoException e) {
                         System.out.println(e.getMessage());
                     }

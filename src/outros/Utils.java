@@ -92,6 +92,71 @@ public class Utils {
         return nros.get(index - 1);
     }
 
+    public static String nro_conta_pagamento(String cpf, Scanner scanner) {
+        List<Integer> tipos = MetodosDB.consultarTipoConta(cpf);
+        List<String> nros = MetodosDB.consultarNroConta(cpf);
+
+        String msg1 = "";
+        String msg2 = "";
+        boolean eFuncionario = tipos.contains(3) || tipos.contains(4);
+
+        if (tipos.size() > 1) {// O CLIENTE TEM DUAS CONTAS CADASTRADAS.
+            if (eFuncionario) {
+                if (!tipos.contains(2))
+                    return null;
+
+                if (tipos.get(0) == 3 || tipos.get(0) == 4)
+                    return nros.get(1);
+
+                if (tipos.get(1) == 3 || tipos.get(1) == 4)
+                    return nros.get(0);
+
+                return null; // Por segurança.
+            }
+
+            if (!eFuncionario)
+                if (tipos.contains(2)) {
+                    if (tipos.getFirst() == 2 && tipos.getLast() != 2)
+                        return nros.getFirst();
+                    else if (tipos.getFirst() != 2 && tipos.getLast() == 2)
+                        return nros.getLast();
+                    else // As duas contas é salário
+                    {
+                        msg1 = "1. " + nros.get(0);
+                        msg2 = "2. " + nros.get(1);
+
+                        System.out.println("Duas contas salário: ");
+                        System.out.println(msg1);
+                        System.out.println(msg2);
+                    }
+                } else
+                    return null;
+
+        } else if (tipos.getFirst() == 2) // Caso em que o cliente só tem uma conta cadastrada.
+            return nros.getFirst();
+        else
+            return null;
+
+        // Só alcança esse trecho de código se tiver duas contas válidas para
+        // pagamento.
+        System.out.print("Escolha qual conta fazer um pagamento: ");
+        String opcao = scanner.nextLine();
+        int index;
+        try {
+            index = Integer.parseInt(opcao);
+            if (index < 1 || index > 2) {
+                System.out.println("Numero inválido");
+                return null;
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("Numero inválido");
+            return null;
+        }
+
+        return nros.get(index - 1);
+    }
+
     // Retorna o tipo ou -1 se houver erro.
     public static int capturar_tipo(List<Integer> tipo, Scanner scanner) {
         if (tipo.contains(0)) {

@@ -63,12 +63,7 @@ public class ContaCorrente extends Conta {
 
     @Override
     public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
-        this.saldo = this.saldo.add(valor);
-        this.ult_movimentacao = LocalDateTime.now();
-
-        Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
-                valor, canal);
-        hist.add(transacao);
+        // Não recebe pagamento.
     }
 
     @Override
@@ -107,7 +102,7 @@ public class ContaCorrente extends Conta {
 
             Conta dest = MetodosDB.consultarConta(cpf_destino, tipo);
             if (dest == null) {
-                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                System.out.println("Não é possível fazer transferência para esse cliente.");
                 return;
             }
 
@@ -132,7 +127,7 @@ public class ContaCorrente extends Conta {
 
             Conta dest = MetodosDB.consultarConta(cpf_destino, nro);
             if (dest == null) {
-                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                System.out.println("Não é possível fazer transferência para esse cliente.");
                 return;
             }
 
@@ -153,7 +148,7 @@ public class ContaCorrente extends Conta {
 
     @Override
     // Efetua pagamento para conta salário.
-    public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
+    public void efetuarPagamento(String cpf_destino, UUID nro, BigDecimal valor, Canal canal) throws SaldoException {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && this.saldo.add(limite_cheque_especial).compareTo(valor) >= 0) {
 
             if (MetodosDB.consultarExiste(cpf_destino) == 0) {
@@ -162,7 +157,7 @@ public class ContaCorrente extends Conta {
                 return;
             }
 
-            Conta dest = MetodosDB.consultarConta(cpf_destino, 2);
+            Conta dest = MetodosDB.consultarConta(cpf_destino, nro);
             if (dest == null) {
                 System.out.println("Não é possível fazer pagamento para esse cliente.");
                 return;

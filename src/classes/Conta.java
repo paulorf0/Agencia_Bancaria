@@ -63,7 +63,8 @@ public abstract class Conta {
 
     public abstract void transferir(String cpf_destino, UUID nro, BigDecimal valor, Canal canal) throws SaldoException;
 
-    public abstract void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException;
+    public abstract void efetuarPagamento(String cpf_destino, UUID nro, BigDecimal valor, Canal canal)
+            throws SaldoException;
 
     public abstract void consultarSaldo();
 

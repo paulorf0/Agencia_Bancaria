@@ -65,12 +65,7 @@ public class ContaPoupanca extends Conta {
 
     @Override
     public void deposito_pagamento(UUID nro_conta, BigDecimal valor, Canal canal) {
-        this.saldo = this.saldo.add(valor);
-        this.ult_movimentacao = LocalDateTime.now();
-
-        Transacao transacao = new Transacao(nro_conta, this.nro_conta, LocalDateTime.now(), TipoTransacao.PAGAMENTO,
-                valor, canal);
-        hist.add(transacao);
+       // Não recebe pagamento
     }
 
     @Override
@@ -108,7 +103,7 @@ public class ContaPoupanca extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
             Conta dest = MetodosDB.consultarConta(cpf_destino, tipo);
             if (dest == null) {
-                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                System.out.println("Não é possível fazer transferência para esse cliente.");
                 return;
             }
 
@@ -132,7 +127,7 @@ public class ContaPoupanca extends Conta {
         if (valor.compareTo(BigDecimal.ZERO) > 0 && valor.compareTo(this.saldo) <= 0) {
             Conta dest = MetodosDB.consultarConta(cpf_destino, nro);
             if (dest == null) {
-                System.out.println("Não é possível fazer pagamento para esse cliente.");
+                System.out.println("Não é possível fazer transferência para esse cliente.");
                 return;
             }
 
@@ -152,7 +147,7 @@ public class ContaPoupanca extends Conta {
     }
 
     @Override
-    public void efetuarPagamento(String cpf_destino, BigDecimal valor, Canal canal) throws SaldoException {
+    public void efetuarPagamento(String cpf_destino, UUID nro, BigDecimal valor, Canal canal) throws SaldoException {
         // Não efetua pagamento.
     }
 

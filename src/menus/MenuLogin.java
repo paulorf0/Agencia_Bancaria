@@ -1,23 +1,13 @@
 package menus;
 
-import classes.Agencia;
-import classes.Cliente;
 import classes.Conta;
 import classes.ContaCorrente;
 import classes.ContaPoupanca;
 import classes.ContaSalario;
-import classes.Endereco;
-import classes.Funcionario;
-import classes.Gerente;
 import enums.Canal;
-import enums.EstadoCivil;
-import enums.Sexo;
 import outros.MetodosDB;
 import outros.Utils;
-import outros.ValidarCPF;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
@@ -69,7 +59,7 @@ public class MenuLogin {
             System.out.println("1. Login");
             System.out.println("2. Cadastrar novo gerente");
             System.out.println("3. Cadastrar agencia");
-            System.out.println("3. Sair");
+            System.out.println("4. Sair");
             System.out.print("Escolha uma opção: ");
             String opcao = scanner.nextLine();
 
